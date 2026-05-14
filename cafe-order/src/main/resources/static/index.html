@@ -1,0 +1,1396 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flower Cafe Order Sample</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --surface-2: #f9fbfd;
+            --text: #17212f;
+            --muted: #667586;
+            --line: #d7dee8;
+            --line-strong: #b8c4d2;
+            --blue: #2563eb;
+            --green: #0f766e;
+            --amber: #b7791f;
+            --red: #b42318;
+            --ink: #08111f;
+            --shadow: 0 14px 34px rgba(20, 32, 48, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.45;
+        }
+
+        main {
+            width: min(1240px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 26px 0 34px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: flex-start;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        h3 {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--ink);
+            letter-spacing: 0;
+        }
+
+        .subtitle {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .server {
+            min-width: 190px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: var(--surface);
+            font-size: 13px;
+            box-shadow: var(--shadow);
+        }
+
+        .server strong {
+            display: block;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(320px, 380px) 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-height: 50px;
+            border-bottom: 1px solid var(--line);
+            padding: 13px 16px;
+        }
+
+        .panel-body {
+            padding: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #b8c4d2;
+            border-radius: 6px;
+            padding: 0 11px;
+            color: var(--ink);
+            font-size: 14px;
+            letter-spacing: 0;
+            background: #ffffff;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .compact-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        button {
+            min-height: 40px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 0 12px;
+            color: #ffffff;
+            background: var(--blue);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            color: var(--ink);
+            background: #edf2f7;
+            border-color: #cbd5e1;
+        }
+
+        button.ghost {
+            min-height: 32px;
+            color: var(--ink);
+            background: #ffffff;
+            border-color: #cbd5e1;
+            font-size: 12px;
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: 0.7;
+        }
+
+        .flow-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .flow {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            background: var(--surface-2);
+        }
+
+        .flow-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .flow code {
+            color: var(--muted);
+            font-family: Consolas, Monaco, monospace;
+            font-size: 12px;
+        }
+
+        .steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .step {
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 4px 8px;
+            color: var(--ink);
+            background: #ffffff;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .custom-builder {
+            margin-top: 16px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            background: var(--surface-2);
+        }
+
+        .custom-steps {
+            display: grid;
+            gap: 8px;
+        }
+
+        .custom-step {
+            display: grid;
+            grid-template-columns: 28px minmax(0, 1fr) auto;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid #d7dee8;
+            border-radius: 8px;
+            padding: 8px;
+            background: #ffffff;
+        }
+
+        .custom-step input {
+            width: 18px;
+            height: 18px;
+            padding: 0;
+        }
+
+        .custom-step strong,
+        .custom-step span {
+            display: block;
+            overflow-wrap: anywhere;
+        }
+
+        .custom-step strong {
+            color: var(--ink);
+            font-size: 13px;
+        }
+
+        .custom-step span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .move-buttons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .move-buttons button,
+        .custom-action {
+            min-height: 30px;
+            padding: 0 9px;
+            font-size: 12px;
+        }
+
+        .custom-action {
+            width: 100%;
+            margin-top: 10px;
+            background: var(--green);
+        }
+
+        .custom-error {
+            min-height: 18px;
+            margin-top: 8px;
+            color: var(--red);
+            font-size: 12px;
+        }
+
+        .live-board {
+            display: grid;
+            gap: 14px;
+        }
+
+        .status-line {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr 0.8fr 0.75fr;
+            gap: 10px;
+        }
+
+        .metric {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px;
+            background: var(--surface-2);
+            min-height: 70px;
+        }
+
+        .metric span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .metric strong {
+            display: block;
+            min-height: 22px;
+            color: var(--ink);
+            font-size: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 24px;
+            border-radius: 999px;
+            padding: 2px 9px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--ink);
+            background: #edf2f7;
+            white-space: nowrap;
+        }
+
+        .badge.completed {
+            color: var(--ink);
+            background: #d9f4ed;
+        }
+
+        .badge.failed {
+            color: var(--ink);
+            background: #ffe0dd;
+        }
+
+        .badge.pending {
+            color: var(--ink);
+            background: #fff0c2;
+        }
+
+        .stage-detail {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: center;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        .stage-detail strong {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--ink);
+            font-size: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .stage-detail span {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .progress-ring {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 5px solid #dce7f4;
+            border-top-color: var(--blue);
+            animation: spin 1.2s linear infinite;
+        }
+
+        .progress-ring.done {
+            border-color: var(--green);
+            animation: none;
+        }
+
+        .progress-ring.idle {
+            border-color: #dce7f4;
+            animation: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .timeline {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .timeline-step {
+            position: relative;
+            min-height: 118px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        .timeline-step::before {
+            content: "";
+            display: block;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            margin-bottom: 9px;
+            background: #c7d2df;
+        }
+
+        .timeline-step.done {
+            border-color: rgba(15, 118, 110, 0.45);
+            background: #f2fbf9;
+        }
+
+        .timeline-step.done::before {
+            background: var(--green);
+        }
+
+        .timeline-step.active {
+            border-color: rgba(37, 99, 235, 0.75);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+            background: #f5f8ff;
+        }
+
+        .timeline-step.active::before {
+            background: var(--blue);
+            animation: pulse 1.1s ease-in-out infinite;
+        }
+
+        .timeline-step.failed {
+            border-color: rgba(180, 35, 24, 0.6);
+            background: #fff5f4;
+        }
+
+        .timeline-step.failed::before {
+            background: var(--red);
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.42);
+            }
+            70% {
+                box-shadow: 0 0 0 9px rgba(37, 99, 235, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+            }
+        }
+
+        .timeline-step small {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .timeline-step strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--ink);
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .timeline-step span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .log {
+            height: 210px;
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #08111f;
+            color: #d7e1ee;
+            padding: 12px;
+            font-family: Consolas, Monaco, monospace;
+            font-size: 12px;
+        }
+
+        .log div {
+            padding-bottom: 5px;
+            overflow-wrap: anywhere;
+        }
+
+        .history-panel {
+            margin-top: 16px;
+        }
+
+        .history-table-wrap {
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid var(--line);
+            padding: 10px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        tr.active-row {
+            background: #f5f8ff;
+        }
+
+        .history-id {
+            min-width: 180px;
+            font-weight: 800;
+            color: var(--ink);
+            overflow-wrap: anywhere;
+        }
+
+        .history-meta {
+            color: var(--muted);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .mini-path {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            min-width: 260px;
+        }
+
+        .mini-step {
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 2px 7px;
+            color: var(--muted);
+            background: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .mini-step.done {
+            border-color: rgba(15, 118, 110, 0.45);
+            color: var(--green);
+            background: #f2fbf9;
+        }
+
+        .mini-step.active {
+            border-color: rgba(37, 99, 235, 0.6);
+            color: var(--blue);
+            background: #f5f8ff;
+        }
+
+        .mini-step.failed {
+            border-color: rgba(180, 35, 24, 0.55);
+            color: var(--red);
+            background: #fff5f4;
+        }
+
+        .empty {
+            color: var(--muted);
+            padding: 18px 8px;
+        }
+
+        @media (max-width: 980px) {
+            header,
+            .workspace {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .status-line,
+            .timeline {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            main {
+                width: min(100% - 20px, 1240px);
+                padding: 18px 0 26px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .status-line,
+            .timeline,
+            .actions,
+            .stage-detail {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-ring {
+                display: none;
+            }
+
+            .custom-step {
+                grid-template-columns: 28px minmax(0, 1fr);
+            }
+
+            .move-buttons {
+                grid-column: 2;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <header>
+        <div>
+            <h1>Flower Cafe Order Sample</h1>
+            <p class="subtitle">Submit cafe orders and watch each Flower Step move through Bloom-backed events.</p>
+        </div>
+        <div class="server">
+            <strong>Local server</strong>
+            <span id="serverUrl">http://localhost:8080</span>
+        </div>
+    </header>
+
+    <section class="workspace">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Submit Order</h2>
+            </div>
+            <div class="panel-body">
+                <label for="orderId">Order id</label>
+                <input id="orderId" autocomplete="off" data-testid="order-id">
+                <div class="actions">
+                    <button id="standardBtn" type="button" data-testid="standard-order">Start Standard</button>
+                    <button id="prepaidBtn" type="button" data-testid="prepaid-order">Start Prepaid</button>
+                    <button id="refreshBtn" class="secondary" type="button">Refresh Status</button>
+                    <button id="newIdBtn" class="secondary" type="button">New Id</button>
+                </div>
+
+                <div class="flow-list">
+                    <div class="flow">
+                        <div class="flow-title">
+                            <span>Standard</span>
+                            <code>cafe-order</code>
+                        </div>
+                        <div class="steps">
+                            <span class="step">accept-order</span>
+                            <span class="step">prepare-cup</span>
+                            <span class="step">payment</span>
+                            <span class="step">brew</span>
+                            <span class="step">complete-order</span>
+                        </div>
+                    </div>
+                    <div class="flow">
+                        <div class="flow-title">
+                            <span>Prepaid</span>
+                            <code>prepaid-cafe-order</code>
+                        </div>
+                        <div class="steps">
+                            <span class="step">accept-order</span>
+                            <span class="step">prepare-cup</span>
+                            <span class="step">brew</span>
+                            <span class="step">complete-order</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-builder">
+                    <div class="flow-title">
+                        <span>Custom</span>
+                        <code>custom-cafe-order</code>
+                    </div>
+                    <div id="customSteps" class="custom-steps"></div>
+                    <button id="customBtn" class="custom-action" type="button">Start Custom</button>
+                    <div id="customError" class="custom-error"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel live-board">
+            <div class="panel-header">
+                <h2>Live Flow Board</h2>
+                <div class="compact-actions">
+                    <button id="refreshAllBtn" class="ghost" type="button">Refresh Orders</button>
+                </div>
+            </div>
+            <div class="panel-body live-board">
+                <div class="status-line">
+                    <div class="metric">
+                        <span>Order</span>
+                        <strong id="currentOrder">-</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Flow</span>
+                        <strong id="currentFlow">-</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Status</span>
+                        <strong><span id="currentStatus" class="badge">IDLE</span></strong>
+                    </div>
+                    <div class="metric">
+                        <span>Elapsed</span>
+                        <strong id="elapsedTime">-</strong>
+                    </div>
+                </div>
+
+                <div class="stage-detail">
+                    <div>
+                        <strong id="stageTitle">Waiting for an order</strong>
+                        <span id="stageDescription">Start a standard, prepaid, or custom order to see the Step sequence.</span>
+                    </div>
+                    <div id="progressRing" class="progress-ring idle" aria-hidden="true"></div>
+                </div>
+
+                <div id="activeTimeline" class="timeline" aria-live="polite"></div>
+
+                <div>
+                    <h3>Event Log</h3>
+                    <div id="log" class="log" aria-live="polite"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel history-panel">
+        <div class="panel-header">
+            <h2>Order History</h2>
+            <div class="compact-actions">
+                <button id="clearHistoryBtn" class="ghost" type="button">Clear Local History</button>
+            </div>
+        </div>
+        <div class="panel-body history-table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Order id</th>
+                    <th>Flow</th>
+                    <th>Status</th>
+                    <th>Path</th>
+                    <th>Updated at</th>
+                </tr>
+                </thead>
+                <tbody id="ordersBody">
+                <tr>
+                    <td class="empty" colspan="5">No orders loaded.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<script>
+    const ORDER_SEQUENCE_KEY = "flower-cafe-order-sequence-v1";
+
+    const orderInput = document.querySelector("#orderId");
+    const standardBtn = document.querySelector("#standardBtn");
+    const prepaidBtn = document.querySelector("#prepaidBtn");
+    const customBtn = document.querySelector("#customBtn");
+    const refreshBtn = document.querySelector("#refreshBtn");
+    const refreshAllBtn = document.querySelector("#refreshAllBtn");
+    const newIdBtn = document.querySelector("#newIdBtn");
+    const clearHistoryBtn = document.querySelector("#clearHistoryBtn");
+    const currentOrder = document.querySelector("#currentOrder");
+    const currentFlow = document.querySelector("#currentFlow");
+    const currentStatus = document.querySelector("#currentStatus");
+    const elapsedTime = document.querySelector("#elapsedTime");
+    const stageTitle = document.querySelector("#stageTitle");
+    const stageDescription = document.querySelector("#stageDescription");
+    const progressRing = document.querySelector("#progressRing");
+    const activeTimeline = document.querySelector("#activeTimeline");
+    const ordersBody = document.querySelector("#ordersBody");
+    const logEl = document.querySelector("#log");
+    const customStepsEl = document.querySelector("#customSteps");
+    const customError = document.querySelector("#customError");
+
+    const stepStatusMap = {
+        "accept-order": ["ACCEPTED"],
+        "prepare-cup": ["CUP_PREPARED"],
+        "payment": ["PAYMENT_REQUESTED", "PAYMENT_APPROVED"],
+        "brew": ["BREW_REQUESTED", "READY"],
+        "complete-order": ["COMPLETED"]
+    };
+
+    const statusInfo = {
+        SUBMITTED: {
+            label: "Submitted",
+            title: "Submitted to Worker",
+            detail: "The Flow has been submitted to the cafe-order Worker."
+        },
+        ACCEPTED: {
+            label: "Accepted",
+            title: "Order Accepted",
+            detail: "AcceptOrderStep recorded the order and leaves this state visible."
+        },
+        CUP_PREPARED: {
+            label: "Cup Prepared",
+            title: "Cup Prepared",
+            detail: "PrepareCupStep simulated picking and labeling the cup."
+        },
+        PAYMENT_REQUESTED: {
+            label: "Payment Requested",
+            title: "Waiting for Payment",
+            detail: "PaymentStep published PaymentRequestedEvent and waits for approval."
+        },
+        PAYMENT_APPROVED: {
+            label: "Payment Approved",
+            title: "Payment Approved",
+            detail: "PaymentGateway replied through Bloom; the Flow is ready to brew."
+        },
+        BREW_REQUESTED: {
+            label: "Brew Requested",
+            title: "Brewing",
+            detail: "BrewStep sent a ticket to BaristaStation and waits for coffee-ready."
+        },
+        READY: {
+            label: "Ready",
+            title: "Coffee Ready",
+            detail: "CoffeeReadyEvent arrived; the order will complete after a short visible pause."
+        },
+        COMPLETED: {
+            label: "Completed",
+            title: "Order Completed",
+            detail: "CompleteOrderStep finished the Flow."
+        },
+        FAILED: {
+            label: "Failed",
+            title: "Order Failed",
+            detail: "The Flow failed before reaching the terminal completed state."
+        },
+        IDLE: {
+            label: "Idle",
+            title: "Waiting for an order",
+            detail: "Start a standard, prepaid, or custom order to see the Step sequence."
+        }
+    };
+
+    let activeOrderId = "";
+    let activeFlow = "";
+    let activeStepIds = [];
+    let activeTimer = null;
+    let elapsedTimer = null;
+    let activeStartedAt = 0;
+    let activeLastStatus = "";
+    let catalogSteps = [];
+    let customOrder = [];
+    let customEnabled = {};
+    let orderHistory = [];
+
+    function nextOrderId(prefix) {
+        const sequence = nextOrderSequence();
+        return `${prefix}-${sequence.date}-${String(sequence.value).padStart(4, "0")}`;
+    }
+
+    function setNewOrderId(prefix = "ORDER") {
+        orderInput.value = nextOrderId(prefix);
+    }
+
+    function nextOrderSequence() {
+        const today = localDateKey();
+        let saved = {};
+        try {
+            saved = JSON.parse(localStorage.getItem(ORDER_SEQUENCE_KEY) || "{}");
+        } catch (error) {
+            saved = {};
+        }
+        const value = saved.date === today ? Number(saved.value || 0) + 1 : 1;
+        const sequence = { date: today, value };
+        localStorage.setItem(ORDER_SEQUENCE_KEY, JSON.stringify(sequence));
+        return sequence;
+    }
+
+    function localDateKey() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        return `${year}${month}${day}`;
+    }
+
+    function orderIdForSubmit() {
+        const orderId = orderInput.value.trim();
+        if (orderId) {
+            return orderId;
+        }
+        setNewOrderId();
+        return orderInput.value.trim();
+    }
+
+    function log(message) {
+        const line = document.createElement("div");
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logEl.prepend(line);
+    }
+
+    function setBusy(busy) {
+        standardBtn.disabled = busy;
+        prepaidBtn.disabled = busy;
+        customBtn.disabled = busy;
+        refreshBtn.disabled = busy;
+        newIdBtn.disabled = busy;
+        document.querySelectorAll("[data-step-toggle], [data-move-step]").forEach(button => {
+            button.disabled = busy || button.dataset.locked === "true";
+        });
+    }
+
+    function paintStatus(status) {
+        const safeStatus = status || "PENDING";
+        currentStatus.textContent = safeStatus;
+        currentStatus.className = "badge";
+        if (safeStatus === "COMPLETED") {
+            currentStatus.classList.add("completed");
+        } else if (safeStatus === "FAILED") {
+            currentStatus.classList.add("failed");
+        } else if (safeStatus !== "IDLE") {
+            currentStatus.classList.add("pending");
+        }
+    }
+
+    function updateStage(status) {
+        const info = statusInfo[status] || statusInfo.IDLE;
+        stageTitle.textContent = info.title;
+        stageDescription.textContent = info.detail;
+        progressRing.className = "progress-ring";
+        if (status === "COMPLETED") {
+            progressRing.classList.add("done");
+        } else if (!status || status === "IDLE") {
+            progressRing.classList.add("idle");
+        }
+    }
+
+    async function request(path, options = {}) {
+        const response = await fetch(path, options);
+        if (response.status === 404) {
+            return null;
+        }
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`${response.status} ${response.statusText} ${text}`.trim());
+        }
+        return response.json();
+    }
+
+    async function loadStepCatalog() {
+        try {
+            catalogSteps = await request("/orders/steps");
+        } catch (error) {
+            log(error.message);
+            catalogSteps = [
+                { id: "accept-order", label: "Accept order", description: "Create the order.", required: true },
+                { id: "prepare-cup", label: "Prepare cup", description: "Pick and label the cup.", required: false },
+                { id: "payment", label: "Payment", description: "Request and wait for payment.", required: false },
+                { id: "brew", label: "Brew", description: "Request and wait for coffee.", required: false },
+                { id: "complete-order", label: "Complete order", description: "Finish the order.", required: true }
+            ];
+        }
+        customOrder = catalogSteps.map(step => step.id);
+        customEnabled = Object.fromEntries(catalogSteps.map(step => [step.id, true]));
+        renderCustomSteps();
+        renderTimeline("idle", ["accept-order", "prepare-cup", "payment", "brew", "complete-order"], "IDLE");
+    }
+
+    function renderCustomSteps() {
+        customStepsEl.innerHTML = customOrder
+            .map(stepId => catalogSteps.find(step => step.id === stepId))
+            .filter(Boolean)
+            .map(step => {
+                const locked = step.required;
+                return `
+                    <div class="custom-step">
+                        <input
+                            type="checkbox"
+                            data-step-toggle="${escapeHtml(step.id)}"
+                            data-locked="${locked}"
+                            ${customEnabled[step.id] ? "checked" : ""}
+                            ${locked ? "disabled" : ""}>
+                        <div>
+                            <strong>${escapeHtml(step.label)}</strong>
+                            <span>${escapeHtml(step.id)} - ${escapeHtml(step.description)}</span>
+                        </div>
+                        <div class="move-buttons">
+                            <button class="secondary" type="button" data-move-step="${escapeHtml(step.id)}" data-direction="-1" data-locked="${locked}" ${locked ? "disabled" : ""}>Up</button>
+                            <button class="secondary" type="button" data-move-step="${escapeHtml(step.id)}" data-direction="1" data-locked="${locked}" ${locked ? "disabled" : ""}>Down</button>
+                        </div>
+                    </div>
+                `;
+            })
+            .join("");
+    }
+
+    function selectedCustomSteps() {
+        return customOrder.filter(stepId => {
+            const step = catalogSteps.find(item => item.id === stepId);
+            return step && (step.required || customEnabled[stepId]);
+        });
+    }
+
+    function moveCustomStep(stepId, direction) {
+        const index = customOrder.indexOf(stepId);
+        const target = index + direction;
+        if (index < 0 || target < 0 || target >= customOrder.length) {
+            return;
+        }
+        const step = catalogSteps.find(item => item.id === stepId);
+        const targetStep = catalogSteps.find(item => item.id === customOrder[target]);
+        if ((step && step.required) || (targetStep && targetStep.required)) {
+            return;
+        }
+        [customOrder[index], customOrder[target]] = [customOrder[target], customOrder[index]];
+        renderCustomSteps();
+    }
+
+    async function refreshOrder(orderId) {
+        const order = await request(`/orders/${encodeURIComponent(orderId)}`);
+        if (!order) {
+            paintStatus("PENDING");
+            return null;
+        }
+        currentOrder.textContent = order.orderId;
+        paintStatus(order.status);
+        updateStage(order.status);
+        upsertHistory({
+            orderId: order.orderId,
+            status: order.status,
+            updatedAt: order.updatedAt
+        });
+        renderTimeline(activeFlow || "server", activeStepIds, order.status);
+        await refreshOrders();
+        return order;
+    }
+
+    async function refreshOrders() {
+        const orders = await request("/orders");
+        if (orders) {
+            orders.forEach(order => upsertHistory({
+                orderId: order.orderId,
+                status: order.status,
+                updatedAt: order.updatedAt,
+                flow: historyEntry(order.orderId)?.flow || "server"
+            }));
+        }
+        renderHistory();
+    }
+
+    function poll(orderId) {
+        clearInterval(activeTimer);
+        activeTimer = setInterval(async () => {
+            try {
+                const order = await refreshOrder(orderId);
+                if (order && order.status && order.status !== activeLastStatus) {
+                    activeLastStatus = order.status;
+                    log(`${order.orderId} status -> ${order.status}`);
+                }
+                if (order && (order.status === "COMPLETED" || order.status === "FAILED")) {
+                    clearInterval(activeTimer);
+                    stopElapsedTimer();
+                    log(`${order.orderId} finished with ${order.status}`);
+                    setBusy(false);
+                }
+            } catch (error) {
+                clearInterval(activeTimer);
+                stopElapsedTimer();
+                log(error.message);
+                setBusy(false);
+            }
+        }, 350);
+    }
+
+    async function startFlow(kind) {
+        const orderId = orderIdForSubmit();
+        if (!orderId) {
+            orderInput.focus();
+            return;
+        }
+        const stepIds = kind === "prepaid"
+            ? ["accept-order", "prepare-cup", "brew", "complete-order"]
+            : ["accept-order", "prepare-cup", "payment", "brew", "complete-order"];
+        prepareActiveOrder(orderId, kind, stepIds);
+        const path = kind === "prepaid"
+            ? `/orders/${encodeURIComponent(orderId)}/prepaid`
+            : `/orders/${encodeURIComponent(orderId)}`;
+        try {
+            await request(path, { method: "POST" });
+            setNewOrderId();
+            log(`submitted ${kind} flow for ${orderId}`);
+            poll(orderId);
+        } catch (error) {
+            log(error.message);
+            stopElapsedTimer();
+            setBusy(false);
+        }
+    }
+
+    async function startCustomFlow() {
+        const orderId = orderIdForSubmit();
+        if (!orderId) {
+            orderInput.focus();
+            return;
+        }
+        const steps = selectedCustomSteps();
+        customError.textContent = "";
+        prepareActiveOrder(orderId, "custom", steps);
+        try {
+            await request(`/orders/${encodeURIComponent(orderId)}/custom`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ steps })
+            });
+            setNewOrderId();
+            log(`submitted custom flow for ${orderId}: ${steps.join(" -> ")}`);
+            poll(orderId);
+        } catch (error) {
+            customError.textContent = error.message;
+            log(error.message);
+            stopElapsedTimer();
+            setBusy(false);
+        }
+    }
+
+    function prepareActiveOrder(orderId, flow, stepIds) {
+        activeOrderId = orderId;
+        activeFlow = flow;
+        activeStepIds = stepIds.slice();
+        activeLastStatus = "SUBMITTED";
+        activeStartedAt = Date.now();
+        currentOrder.textContent = orderId;
+        currentFlow.textContent = flow;
+        paintStatus("SUBMITTED");
+        updateStage("SUBMITTED");
+        setBusy(true);
+        upsertHistory({
+            orderId,
+            flow,
+            stepIds: activeStepIds,
+            status: "SUBMITTED",
+            submittedAt: new Date(activeStartedAt).toISOString(),
+            updatedAt: new Date(activeStartedAt).toISOString()
+        });
+        renderTimeline(flow, stepIds, "SUBMITTED");
+        renderHistory();
+        startElapsedTimer();
+    }
+
+    function startElapsedTimer() {
+        stopElapsedTimer();
+        updateElapsedTime();
+        elapsedTimer = setInterval(updateElapsedTime, 500);
+    }
+
+    function stopElapsedTimer() {
+        clearInterval(elapsedTimer);
+        elapsedTimer = null;
+        updateElapsedTime();
+    }
+
+    function updateElapsedTime() {
+        if (!activeStartedAt) {
+            elapsedTime.textContent = "-";
+            return;
+        }
+        const elapsed = Math.max(0, Date.now() - activeStartedAt);
+        elapsedTime.textContent = `${(elapsed / 1000).toFixed(1)}s`;
+    }
+
+    function statusesFor(stepIds) {
+        const statuses = ["SUBMITTED"];
+        stepIds.forEach(stepId => {
+            (stepStatusMap[stepId] || []).forEach(status => statuses.push(status));
+        });
+        return statuses;
+    }
+
+    function stepIdsForFlow(flow) {
+        if (flow === "prepaid") {
+            return ["accept-order", "prepare-cup", "brew", "complete-order"];
+        }
+        return ["accept-order", "prepare-cup", "payment", "brew", "complete-order"];
+    }
+
+    function renderTimeline(flow, stepIds, current) {
+        const resolvedStepIds = stepIds && stepIds.length > 0 ? stepIds : stepIdsForFlow(flow);
+        const statuses = statusesFor(resolvedStepIds);
+        const activeStatus = current || "IDLE";
+        const activeIndex = Math.max(0, statuses.indexOf(activeStatus));
+        activeTimeline.innerHTML = statuses.map((status, index) => {
+            const info = statusInfo[status] || { label: status, title: status, detail: "" };
+            let state = "upcoming";
+            if (activeStatus === "FAILED" && index === Math.max(activeIndex, 0)) {
+                state = "failed";
+            } else if (status === activeStatus) {
+                state = activeStatus === "COMPLETED" ? "done" : "active";
+            } else if (index < activeIndex || activeStatus === "COMPLETED") {
+                state = "done";
+            }
+            return `
+                <div class="timeline-step ${state}">
+                    <small>${escapeHtml(status)}</small>
+                    <strong>${escapeHtml(info.label)}</strong>
+                    <span>${escapeHtml(info.detail)}</span>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function historyEntry(orderId) {
+        return orderHistory.find(entry => entry.orderId === orderId);
+    }
+
+    function upsertHistory(next) {
+        if (!next || !next.orderId) {
+            return;
+        }
+        let entry = historyEntry(next.orderId);
+        if (!entry) {
+            entry = {
+                orderId: next.orderId,
+                flow: next.flow || "server",
+                stepIds: next.stepIds || stepIdsForFlow(next.flow || "server"),
+                submittedAt: next.submittedAt || next.updatedAt || new Date().toISOString(),
+                updatedAt: next.updatedAt || new Date().toISOString(),
+                status: next.status || "PENDING",
+                trail: []
+            };
+            orderHistory.unshift(entry);
+        }
+        entry.flow = next.flow || entry.flow || "server";
+        entry.stepIds = next.stepIds || entry.stepIds || stepIdsForFlow(entry.flow);
+        entry.updatedAt = next.updatedAt || entry.updatedAt || new Date().toISOString();
+        entry.submittedAt = entry.submittedAt || next.submittedAt || entry.updatedAt;
+        if (next.status) {
+            entry.status = next.status;
+            if (!entry.trail.includes(next.status)) {
+                entry.trail.push(next.status);
+            }
+        }
+        orderHistory = orderHistory
+            .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)))
+            .slice(0, 80);
+    }
+
+    function renderHistory() {
+        if (!orderHistory.length) {
+            ordersBody.innerHTML = `<tr><td class="empty" colspan="5">No orders loaded.</td></tr>`;
+            return;
+        }
+        ordersBody.innerHTML = orderHistory.map(entry => `
+            <tr class="${entry.orderId === activeOrderId ? "active-row" : ""}">
+                <td>
+                    <div class="history-id">${escapeHtml(entry.orderId)}</div>
+                    <div class="history-meta">submitted ${escapeHtml(formatTime(entry.submittedAt))}</div>
+                </td>
+                <td>${escapeHtml(entry.flow || "server")}</td>
+                <td>${statusBadgeHtml(entry.status)}</td>
+                <td>${miniPathHtml(entry)}</td>
+                <td>${escapeHtml(formatTime(entry.updatedAt))}</td>
+            </tr>
+        `).join("");
+    }
+
+    function statusBadgeHtml(status) {
+        const safeStatus = status || "PENDING";
+        let cls = "badge";
+        if (safeStatus === "COMPLETED") {
+            cls += " completed";
+        } else if (safeStatus === "FAILED") {
+            cls += " failed";
+        } else {
+            cls += " pending";
+        }
+        return `<span class="${cls}">${escapeHtml(safeStatus)}</span>`;
+    }
+
+    function miniPathHtml(entry) {
+        const stepIds = entry.stepIds && entry.stepIds.length > 0 ? entry.stepIds : stepIdsForFlow(entry.flow);
+        const statuses = statusesFor(stepIds);
+        const currentIndex = statuses.indexOf(entry.status);
+        const doneThrough = entry.status === "COMPLETED" ? statuses.length - 1 : currentIndex;
+        return `
+            <div class="mini-path">
+                ${statuses.map((status, index) => {
+                    let state = "";
+                    if (entry.status === "FAILED" && status === entry.status) {
+                        state = "failed";
+                    } else if (status === entry.status && entry.status !== "COMPLETED") {
+                        state = "active";
+                    } else if (index <= doneThrough || entry.trail.includes(status)) {
+                        state = "done";
+                    }
+                    const label = (statusInfo[status] || { label: status }).label;
+                    return `<span class="mini-step ${state}">${escapeHtml(label)}</span>`;
+                }).join("")}
+            </div>
+        `;
+    }
+
+    function formatTime(value) {
+        if (!value) {
+            return "-";
+        }
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return value;
+        }
+        return date.toLocaleTimeString();
+    }
+
+    function clearLocalHistory() {
+        orderHistory = [];
+        renderHistory();
+        log("order history cleared");
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    standardBtn.addEventListener("click", () => startFlow("standard"));
+    prepaidBtn.addEventListener("click", () => startFlow("prepaid"));
+    customBtn.addEventListener("click", startCustomFlow);
+    customStepsEl.addEventListener("change", event => {
+        const stepId = event.target.dataset.stepToggle;
+        if (stepId) {
+            customEnabled[stepId] = event.target.checked;
+        }
+    });
+    customStepsEl.addEventListener("click", event => {
+        const stepId = event.target.dataset.moveStep;
+        if (stepId) {
+            moveCustomStep(stepId, Number(event.target.dataset.direction));
+        }
+    });
+    refreshBtn.addEventListener("click", async () => {
+        const orderId = activeOrderId || orderInput.value.trim();
+        if (orderId) {
+            await refreshOrder(orderId);
+        } else {
+            await refreshOrders();
+        }
+    });
+    refreshAllBtn.addEventListener("click", () => refreshOrders().catch(error => log(error.message)));
+    clearHistoryBtn.addEventListener("click", clearLocalHistory);
+    newIdBtn.addEventListener("click", () => setNewOrderId());
+
+    setNewOrderId();
+    renderHistory();
+    loadStepCatalog();
+    refreshOrders().catch(error => log(error.message));
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+server:
+  port: 8082
+
+flower:
+  enabled: true
+  auto-start: true
+  workers:
+    # flower-spring-boot-starter turns this into Worker.builder("battles").
+    # TurnBattleWorker.NAME must match this name.
+    - name: battles
+      interval-ms: 100
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

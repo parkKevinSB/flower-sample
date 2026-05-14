@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flower Turn Battle</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7efe1;
+      --muted: #b7ad9d;
+      --line: #4b3b3e;
+      --panel: #241d24;
+      --panel-2: #312632;
+      --field: #2f4735;
+      --field-dark: #1d2b25;
+      --ember: #e06f3f;
+      --gold: #f4b948;
+      --mint: #76c7a1;
+      --red: #d95454;
+      --blue: #6aa9d8;
+      --shadow: rgba(0, 0, 0, 0.38);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+        #16141a;
+      background-size: 24px 24px;
+      color: var(--ink);
+    }
+
+    button {
+      border: 1px solid #6b4f42;
+      border-radius: 6px;
+      color: #1b1517;
+      background: var(--gold);
+      font-weight: 800;
+      min-height: 42px;
+      padding: 0 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #8b5f23;
+      transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #8b5f23;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      box-shadow: none;
+    }
+
+    .shell {
+      width: min(1180px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 18px 0 22px;
+      display: grid;
+      gap: 14px;
+      grid-template-columns: minmax(0, 1fr) 330px;
+    }
+
+    .topbar {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(36, 29, 36, 0.94);
+      box-shadow: 0 12px 30px var(--shadow);
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(22px, 4vw, 34px);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(72px, auto));
+      gap: 8px;
+    }
+
+    .stat {
+      padding: 8px 10px;
+      border: 1px solid #5b474a;
+      border-radius: 6px;
+      background: #1d181f;
+      min-width: 0;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    .arena {
+      position: relative;
+      min-height: 610px;
+      border: 1px solid #4b5238;
+      border-radius: 8px;
+      overflow: hidden;
+      background:
+        linear-gradient(0deg, rgba(0,0,0,0.24), rgba(0,0,0,0) 42%),
+        linear-gradient(180deg, #6c8d7b 0 48%, var(--field) 48% 100%);
+      box-shadow: 0 16px 40px var(--shadow);
+    }
+
+    .arena::before {
+      content: "";
+      position: absolute;
+      inset: 48% 0 0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+        var(--field-dark);
+      background-size: 34px 34px;
+    }
+
+    .arena::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 22%;
+      height: 16px;
+      background: #6f5a3d;
+      border-top: 3px solid #9f7b4b;
+      border-bottom: 3px solid #3b2e25;
+    }
+
+    .status-line {
+      position: relative;
+      z-index: 2;
+      margin: 16px auto 0;
+      width: min(620px, calc(100% - 28px));
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 8px;
+      background: rgba(27, 21, 23, 0.82);
+    }
+
+    .status-line strong {
+      font-size: 15px;
+    }
+
+    .status-line span {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .fighters {
+      position: absolute;
+      inset: 90px 18px 130px;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(130px, 1fr) minmax(130px, 1fr);
+      align-items: end;
+      gap: 20px;
+    }
+
+    .fighter {
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .fighter.monster {
+      transform: scaleX(-1);
+    }
+
+    .fighter.monster .nameplate,
+    .fighter.monster .sprite-wrap {
+      transform: scaleX(-1);
+    }
+
+    .sprite-wrap {
+      width: min(220px, 36vw);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: end center;
+      filter: drop-shadow(0 18px 12px rgba(0,0,0,0.36));
+    }
+
+    .sprite {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      shape-rendering: crispEdges;
+    }
+
+    .nameplate {
+      width: min(270px, 100%);
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      background: rgba(24, 19, 21, 0.88);
+    }
+
+    .name-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      font-size: 14px;
+    }
+
+    .name-row b {
+      overflow-wrap: anywhere;
+    }
+
+    .hp {
+      margin-top: 8px;
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #201a1c;
+      border: 1px solid #514044;
+    }
+
+    .hp > i {
+      display: block;
+      height: 100%;
+      width: var(--hp, 100%);
+      background: linear-gradient(90deg, var(--red), #efb36b);
+      transition: width 220ms ease;
+    }
+
+    .hero .hp > i {
+      background: linear-gradient(90deg, var(--mint), var(--blue));
+    }
+
+    .controls {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      background: rgba(27, 21, 23, 0.9);
+    }
+
+    .controls .prompt {
+      min-width: 0;
+    }
+
+    .controls .prompt b {
+      display: block;
+      font-size: 15px;
+    }
+
+    .controls .prompt span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .attack-btn {
+      min-width: 128px;
+      background: var(--ember);
+      color: #fff8ed;
+      box-shadow: 0 4px 0 #81371f;
+      border-color: #9a4126;
+    }
+
+    .flee-btn {
+      min-width: 104px;
+      background: #d8c2a6;
+      color: #241a18;
+      box-shadow: 0 4px 0 #7a6048;
+      border-color: #8f7154;
+    }
+
+    .start-btn {
+      min-width: 156px;
+    }
+
+    .side {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 12px 30px var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel h2 {
+      margin: 0;
+      padding: 12px 14px;
+      font-size: 15px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-2);
+    }
+
+    .log {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 12px 14px;
+      max-height: 335px;
+      overflow: auto;
+      list-style: none;
+    }
+
+    .log li {
+      color: #e4d9c8;
+      font-size: 13px;
+      line-height: 1.35;
+      padding-left: 10px;
+      border-left: 3px solid #73594d;
+    }
+
+    .inventory {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 14px;
+      min-height: 72px;
+      max-height: 220px;
+      overflow-y: auto;
+      align-content: flex-start;
+    }
+
+    .item {
+      border-radius: 6px;
+      border: 1px solid currentColor;
+      background: rgba(52, 38, 31, 0.7);
+      color: #f4f1e8;
+      padding: 7px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      min-width: 120px;
+    }
+
+    .item.magic {
+      color: #5aa7ff;
+      background: rgba(30, 57, 93, 0.55);
+    }
+
+    .item.rare {
+      color: #ffd34d;
+      background: rgba(93, 72, 24, 0.55);
+    }
+
+    .item.unique {
+      color: #c95b1d;
+      background: rgba(96, 40, 14, 0.62);
+    }
+
+    .item small {
+      display: block;
+      margin-top: 3px;
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .reward {
+      display: none;
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      background: #1c271f;
+      color: #d8f2dc;
+      font-size: 13px;
+      line-height: 1.45;
+      transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+    }
+
+    .reward.show {
+      display: block;
+    }
+
+    .reward.result-victory {
+      border-top-color: rgba(127, 213, 255, 0.82);
+      background: rgba(37, 111, 145, 0.92);
+      color: #f0fbff;
+    }
+
+    .reward.result-defeat {
+      border-top-color: rgba(255, 120, 120, 0.88);
+      background: rgba(133, 31, 36, 0.94);
+      color: #fff4f1;
+    }
+
+    .hero-attacking .hero .sprite-wrap {
+      animation: slash 520ms ease-out;
+    }
+
+    .monster-acting .monster .sprite-wrap {
+      animation: lunge 520ms ease-out;
+    }
+
+    .hit-flash .monster .sprite-wrap,
+    .hero-hit .hero .sprite-wrap {
+      animation: damage 420ms steps(2);
+    }
+
+    @keyframes slash {
+      0% { transform: translateX(0); }
+      45% { transform: translateX(52px) translateY(-4px); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes lunge {
+      0% { transform: translateX(0); }
+      45% { transform: translateX(-40px); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes damage {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(2.1) saturate(0.8); }
+    }
+
+    @media (max-width: 880px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .arena {
+        min-height: 560px;
+      }
+
+      .sprite-wrap {
+        width: min(190px, 42vw);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .shell {
+        width: min(100vw - 18px, 1180px);
+        padding-top: 14px;
+      }
+
+      .fighters {
+        inset: 108px 10px 140px;
+        gap: 8px;
+      }
+
+      .status-line {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .status-line span {
+        text-align: left;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .button-row {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .attack-btn,
+      .flee-btn,
+      .start-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Flower Turn Battle</h1>
+        <p>A sword, a monster, and a little server-side luck.</p>
+      </div>
+      <section class="hero-stats" aria-label="Hero stats">
+        <div class="stat"><span>Level</span><strong id="hero-level">1</strong></div>
+        <div class="stat"><span>XP</span><strong id="hero-xp">0 / 55</strong></div>
+        <div class="stat"><span>HP</span><strong id="hero-stat-hp">100 / 100</strong></div>
+        <div class="stat"><span>Attack</span><strong id="hero-attack">22</strong></div>
+        <div class="stat"><span>Defense</span><strong id="hero-defense">4</strong></div>
+      </section>
+    </header>
+
+    <section class="arena" id="arena" aria-live="polite">
+      <div class="status-line">
+        <strong id="status-title">Ready</strong>
+        <span id="status-detail">The road is quiet.</span>
+      </div>
+
+      <div class="fighters">
+        <div class="fighter hero">
+          <div class="sprite-wrap" id="hero-sprite"></div>
+          <div class="nameplate">
+            <div class="name-row"><b>Hero</b><span id="hero-hp-text">100 / 100</span></div>
+            <div class="hp" aria-hidden="true"><i id="hero-hp-bar"></i></div>
+          </div>
+        </div>
+
+        <div class="fighter monster">
+          <div class="sprite-wrap" id="monster-sprite"></div>
+          <div class="nameplate">
+            <div class="name-row"><b id="monster-name">No monster</b><span id="monster-hp-text">0 / 0</span></div>
+            <div class="hp" aria-hidden="true"><i id="monster-hp-bar"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="prompt">
+          <b id="prompt-title">Camp</b>
+          <span id="prompt-subtitle">A new encounter waits beyond the trees.</span>
+        </div>
+        <div class="button-row">
+          <button class="start-btn" id="start-btn" type="button">Start Battle</button>
+          <button class="attack-btn" id="attack-btn" type="button" disabled>Attack</button>
+          <button class="flee-btn" id="flee-btn" type="button" disabled>Flee</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <h2>Battle Log</h2>
+        <ul class="log" id="battle-log"></ul>
+        <div class="reward" id="reward"></div>
+      </section>
+      <section class="panel">
+        <h2>Inventory</h2>
+        <div class="inventory" id="inventory"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const state = {
+      game: null,
+      actionLocked: false,
+      lastStatus: null
+    };
+
+    const el = (id) => document.getElementById(id);
+    const finished = (battle) => !battle || battle.status === "VICTORY" || battle.status === "DEFEAT" || battle.status === "ESCAPED";
+    const activeBattle = (battle) => battle && !finished(battle);
+
+    const labels = {
+      TURN_STARTED: ["Turn begins", "The fighters square up."],
+      WAITING_PLAYER_ACTION: ["Your turn", "Strike or try to flee."],
+      ANIMATING_PLAYER_ATTACK: ["Sword strike", "The hit is resolving."],
+      FLEE_FAILED: ["Escape failed", "The monster cuts off your path."],
+      MONSTER_TURN: ["Monster turn", "Brace for the counterattack."],
+      ESCAPED: ["Escaped", "No reward, but the hero survives."],
+      VICTORY: ["Victory", "The server rolled your reward."],
+      DEFEAT: ["You died", "The hero has been reset."]
+    };
+
+    const spritePaths = {
+      hero: "/assets/sprites/hero.svg",
+      BOAR: "/assets/sprites/boar.svg",
+      ORC: "/assets/sprites/orc.svg",
+      SKELETON_KNIGHT: "/assets/sprites/skeleton-knight.svg",
+      WRAITH: "/assets/sprites/wraith.svg",
+      WYVERN: "/assets/sprites/wyvern.svg",
+      DRAGON: "/assets/sprites/dragon.svg",
+      ABYSS_LORD: "/assets/sprites/abyss-lord.svg",
+      VOID_EMPEROR: "/assets/sprites/void-emperor.svg",
+      none: "/assets/sprites/no-monster.svg"
+    };
+
+    function spriteImg(name, label) {
+      const src = spritePaths[name] || spritePaths.none;
+      return `<img class="sprite" src="${src}" alt="${escapeHtml(label)}">`;
+    }
+
+    function setSprite(id, name, label) {
+      const target = el(id);
+      if (target.dataset.sprite === name) {
+        return;
+      }
+      target.dataset.sprite = name;
+      target.innerHTML = spriteImg(name, label);
+    }
+
+    async function request(path, options = {}) {
+      const response = await fetch(path, { ...options, headers: { "Accept": "application/json", ...(options.headers || {}) } });
+      if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+      const text = await response.text();
+      if (!text) {
+        return null;
+      }
+      return JSON.parse(text);
+    }
+
+    async function refresh() {
+      try {
+        state.game = await request("/game");
+        render();
+      } catch (error) {
+        el("status-title").textContent = "Disconnected";
+        el("status-detail").textContent = error.message;
+      }
+    }
+
+    async function startBattle() {
+      el("start-btn").disabled = true;
+      try {
+        await request("/battles", { method: "POST" });
+        state.actionLocked = false;
+        await refresh();
+      } finally {
+        el("start-btn").disabled = false;
+      }
+    }
+
+    async function attack() {
+      const battle = state.game && state.game.battle;
+      if (!battle || battle.status !== "WAITING_PLAYER_ACTION" || state.actionLocked) {
+        return;
+      }
+
+      state.actionLocked = true;
+      el("arena").classList.add("hero-attacking");
+
+      try {
+        await request(`/battles/${battle.battleId}/attack`, { method: "POST" });
+        window.setTimeout(async () => {
+          el("arena").classList.add("hit-flash");
+          try {
+            await request(`/battles/${battle.battleId}/animation-finished`, { method: "POST" });
+          } catch (error) {
+            console.warn(error);
+          }
+          await refresh();
+        }, 560);
+      } catch (error) {
+        console.warn(error);
+        state.actionLocked = false;
+      } finally {
+        window.setTimeout(() => {
+          el("arena").classList.remove("hero-attacking", "hit-flash");
+        }, 900);
+      }
+    }
+
+    async function flee() {
+      const battle = state.game && state.game.battle;
+      if (!battle || battle.status !== "WAITING_PLAYER_ACTION" || state.actionLocked) {
+        return;
+      }
+
+      state.actionLocked = true;
+
+      try {
+        await request(`/battles/${battle.battleId}/flee`, { method: "POST" });
+        window.setTimeout(refresh, 160);
+      } catch (error) {
+        console.warn(error);
+        state.actionLocked = false;
+      }
+    }
+
+    function render() {
+      const game = state.game;
+      const hero = game.hero;
+      const battle = game.battle;
+      const active = activeBattle(battle);
+      const status = battle ? battle.status : "READY";
+      const label = labels[status] || ["Camp", "A new encounter waits beyond the trees."];
+
+      if (state.lastStatus !== status) {
+        if (status === "MONSTER_TURN") {
+          el("arena").classList.add("monster-acting", "hero-hit");
+          window.setTimeout(() => el("arena").classList.remove("monster-acting", "hero-hit"), 650);
+        }
+        state.lastStatus = status;
+      }
+
+      el("hero-level").textContent = hero.level;
+      el("hero-xp").textContent = `${hero.xp} / ${hero.nextLevelXp}`;
+      el("hero-stat-hp").textContent = `${hero.currentHp} / ${hero.maxHp}`;
+      el("hero-attack").textContent = hero.attack;
+      el("hero-defense").textContent = hero.defense;
+
+      el("status-title").textContent = label[0];
+      el("status-detail").textContent = active ? `${battle.monsterName} - turn ${battle.turn}` : label[1];
+      el("prompt-title").textContent = label[0];
+      el("prompt-subtitle").textContent = label[1];
+
+      const heroHp = active ? battle.heroHp : hero.currentHp;
+      const heroMaxHp = active ? battle.heroMaxHp : hero.maxHp;
+      setHp("hero", heroHp, heroMaxHp);
+
+      if (active) {
+        el("monster-name").textContent = battle.monsterName;
+        setHp("monster", battle.monsterHp, battle.monsterMaxHp);
+        setSprite("monster-sprite", battle.monsterType, `${battle.monsterName} sprite`);
+      } else {
+        el("monster-name").textContent = "No monster";
+        setHp("monster", 0, 1);
+        setSprite("monster-sprite", "none", "Empty encounter marker");
+      }
+
+      setSprite("hero-sprite", "hero", "Hero sprite");
+
+      if (!battle || battle.status !== "WAITING_PLAYER_ACTION" || finished(battle)) {
+        state.actionLocked = false;
+      }
+
+      const canAct = battle && battle.status === "WAITING_PLAYER_ACTION" && !state.actionLocked;
+      el("attack-btn").disabled = !canAct;
+      el("flee-btn").disabled = !canAct;
+      el("attack-btn").style.display = active ? "inline-block" : "none";
+      el("flee-btn").style.display = active ? "inline-block" : "none";
+      el("start-btn").style.display = !battle || finished(battle) ? "inline-block" : "none";
+      el("start-btn").textContent = battle && (battle.status === "VICTORY" || battle.status === "ESCAPED")
+        ? "Next Battle"
+        : "Start Battle";
+
+      renderLog(battle);
+      renderReward(battle);
+      renderInventory(hero);
+    }
+
+    function setHp(prefix, hp, maxHp) {
+      const safeMax = Math.max(1, maxHp);
+      const safeHp = Math.max(0, hp);
+      const percent = Math.max(0, Math.min(100, Math.round((safeHp / safeMax) * 100)));
+      el(`${prefix}-hp-text`).textContent = `${safeHp} / ${safeMax}`;
+      el(`${prefix}-hp-bar`).style.setProperty("--hp", `${percent}%`);
+    }
+
+    function renderLog(battle) {
+      const log = battle ? battle.log.slice(-12).reverse() : ["No battle yet."];
+      el("battle-log").innerHTML = log.map((entry) => `<li>${escapeHtml(entry)}</li>`).join("");
+    }
+
+    function renderReward(battle) {
+      const reward = el("reward");
+      reward.className = "reward";
+      if (battle && battle.status === "VICTORY") {
+        reward.classList.add("show", "result-victory");
+        reward.textContent = battle.rewardItemName
+          ? `Reward: ${battle.rewardItemName} (${battle.rewardRarity}, ${battle.rewardStatSummary}) - ${battle.rewardXp} XP`
+          : `Reward: No item drop - ${battle.rewardXp} XP`;
+      } else if (battle && battle.status === "DEFEAT") {
+        reward.classList.add("show", "result-defeat");
+        reward.textContent = "You died. A fresh legend begins at level 1.";
+      } else if (battle && battle.status === "ESCAPED") {
+        reward.classList.add("show");
+        reward.textContent = "Escaped. No loot or XP, and current HP carries into the next battle.";
+      } else {
+        reward.textContent = "";
+      }
+    }
+
+    function renderInventory(hero) {
+      const items = hero.items || [];
+      if (!items.length) {
+        el("inventory").innerHTML = `<span class="empty">Empty</span>`;
+        return;
+      }
+      el("inventory").innerHTML = items
+        .map((item) => `<span class="item ${escapeHtml(item.rarityClass)}">${escapeHtml(item.name)}<small>${escapeHtml(item.rarity)} - ${escapeHtml(item.statSummary)}</small></span>`)
+        .join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    el("start-btn").addEventListener("click", startBattle);
+    el("attack-btn").addEventListener("click", attack);
+    el("flee-btn").addEventListener("click", flee);
+
+    refresh();
+    window.setInterval(refresh, 420);
+  </script>
+</body>
+</html>

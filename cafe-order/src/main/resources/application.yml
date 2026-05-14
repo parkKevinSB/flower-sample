@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+flower:
+  enabled: true
+  auto-start: true
+  workers:
+    # flower-spring-boot-starter turns this into Worker.builder("orders").
+    # CafeOrderWorker.NAME must match this name.
+    - name: orders
+      interval-ms: 100
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

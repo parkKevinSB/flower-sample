@@ -1,0 +1,23 @@
+.gradle/
+build/
+out/
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Local assistant config
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Java
+*.class
+hs_err_pid*.log
+replay_pid*.log

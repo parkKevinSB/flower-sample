@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Void Emperor pixel sprite">
+  <g shape-rendering="crispEdges">
+    <rect width="64" height="64" fill="none"/>
+    <rect x="5" y="57" width="54" height="5" fill="#09070d" opacity=".82"/>
+    <rect x="24" y="5" width="16" height="8" fill="#191027"/>
+    <rect x="20" y="12" width="24" height="10" fill="#2c1642"/>
+    <rect x="15" y="21" width="34" height="15" fill="#3d1d57"/>
+    <rect x="21" y="25" width="5" height="5" fill="#f3ec86"/>
+    <rect x="38" y="25" width="5" height="5" fill="#f3ec86"/>
+    <rect x="29" y="32" width="7" height="4" fill="#0a0710"/>
+    <rect x="6" y="11" width="13" height="12" fill="#24113a"/>
+    <rect x="1" y="7" width="9" height="8" fill="#7848c8"/>
+    <rect x="45" y="11" width="13" height="12" fill="#24113a"/>
+    <rect x="54" y="7" width="9" height="8" fill="#7848c8"/>
+    <rect x="11" y="36" width="42" height="17" fill="#1c102b"/>
+    <rect x="18" y="37" width="28" height="6" fill="#4b256a"/>
+    <rect x="5" y="38" width="12" height="14" fill="#31184a"/>
+    <rect x="47" y="38" width="12" height="14" fill="#31184a"/>
+    <rect x="3" y="50" width="11" height="4" fill="#b14dff"/>
+    <rect x="50" y="50" width="11" height="4" fill="#b14dff"/>
+    <rect x="22" y="53" width="8" height="8" fill="#10091c"/>
+    <rect x="39" y="53" width="8" height="8" fill="#10091c"/>
+    <rect x="19" y="60" width="13" height="3" fill="#4b256a"/>
+    <rect x="37" y="60" width="13" height="3" fill="#4b256a"/>
+    <rect x="27" y="43" width="10" height="5" fill="#b14dff"/>
+    <rect x="31" y="9" width="3" height="9" fill="#e6d3ff"/>
+    <rect x="12" y="2" width="5" height="5" fill="#f3ec86"/>
+    <rect x="47" y="2" width="5" height="5" fill="#f3ec86"/>
+    <rect x="28" y="1" width="8" height="3" fill="#b14dff"/>
+    <rect x="8" y="27" width="5" height="5" fill="#5b2f86"/>
+    <rect x="51" y="27" width="5" height="5" fill="#5b2f86"/>
+    <rect x="14" y="15" width="4" height="4" fill="#e6d3ff"/>
+    <rect x="46" y="15" width="4" height="4" fill="#e6d3ff"/>
+  </g>
+</svg>

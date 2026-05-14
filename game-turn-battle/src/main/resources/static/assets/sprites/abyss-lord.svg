@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Abyss Lord pixel sprite">
+  <g shape-rendering="crispEdges">
+    <rect width="64" height="64" fill="none"/>
+    <rect x="7" y="57" width="50" height="5" fill="#171218" opacity=".72"/>
+    <rect x="21" y="10" width="22" height="10" fill="#3d1721"/>
+    <rect x="17" y="18" width="30" height="17" fill="#6e1f2c"/>
+    <rect x="20" y="24" width="5" height="5" fill="#ffb13c"/>
+    <rect x="39" y="24" width="5" height="5" fill="#ffb13c"/>
+    <rect x="29" y="31" width="8" height="4" fill="#171218"/>
+    <rect x="10" y="9" width="13" height="9" fill="#c95b1d"/>
+    <rect x="5" y="4" width="9" height="8" fill="#f08b2c"/>
+    <rect x="41" y="9" width="13" height="9" fill="#c95b1d"/>
+    <rect x="50" y="4" width="9" height="8" fill="#f08b2c"/>
+    <rect x="14" y="35" width="38" height="18" fill="#431823"/>
+    <rect x="20" y="37" width="26" height="6" fill="#8e2b32"/>
+    <rect x="8" y="38" width="10" height="12" fill="#6e1f2c"/>
+    <rect x="50" y="38" width="8" height="12" fill="#6e1f2c"/>
+    <rect x="6" y="49" width="9" height="4" fill="#f08b2c"/>
+    <rect x="53" y="49" width="8" height="4" fill="#f08b2c"/>
+    <rect x="23" y="53" width="8" height="8" fill="#241019"/>
+    <rect x="40" y="53" width="8" height="8" fill="#241019"/>
+    <rect x="20" y="60" width="13" height="3" fill="#8e2b32"/>
+    <rect x="38" y="60" width="13" height="3" fill="#8e2b32"/>
+    <rect x="27" y="43" width="9" height="5" fill="#ff7a2d"/>
+    <rect x="32" y="15" width="4" height="5" fill="#c95b1d"/>
+  </g>
+</svg>

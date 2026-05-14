@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Wraith pixel sprite">
+  <g shape-rendering="crispEdges">
+    <rect width="64" height="64" fill="none"/>
+    <rect x="15" y="58" width="34" height="4" fill="#171218" opacity=".5"/>
+    <rect x="23" y="9" width="18" height="8" fill="#b7c9d8"/>
+    <rect x="19" y="17" width="27" height="18" fill="#6a7890"/>
+    <rect x="16" y="29" width="33" height="22" fill="#3c4358"/>
+    <rect x="22" y="22" width="5" height="5" fill="#a6f3ff"/>
+    <rect x="37" y="22" width="5" height="5" fill="#a6f3ff"/>
+    <rect x="27" y="32" width="10" height="3" fill="#202533"/>
+    <rect x="13" y="35" width="9" height="10" fill="#5f6e89"/>
+    <rect x="46" y="32" width="8" height="13" fill="#5f6e89"/>
+    <rect x="18" y="51" width="8" height="7" fill="#293043"/>
+    <rect x="29" y="51" width="7" height="9" fill="#293043"/>
+    <rect x="40" y="51" width="7" height="7" fill="#293043"/>
+    <rect x="25" y="13" width="4" height="4" fill="#dff8ff"/>
+    <rect x="36" y="13" width="4" height="4" fill="#dff8ff"/>
+    <rect x="18" y="43" width="28" height="3" fill="#8796ad"/>
+  </g>
+</svg>

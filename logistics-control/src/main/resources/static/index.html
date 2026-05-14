@@ -1,0 +1,1955 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flower Logistics Control Sample</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #eef2f6;
+            --panel: #ffffff;
+            --text: #1f2933;
+            --muted: #667085;
+            --line: #d6dce5;
+            --ink: #111827;
+            --blue: #2563eb;
+            --green: #0f766e;
+            --amber: #b7791f;
+            --red: #b42318;
+            --floor: #e8edf3;
+            --rack: #c8d3df;
+            --belt-dark: #6f8399;
+            --belt-light: #d5dde7;
+            --crate: #c77936;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.45;
+        }
+
+        main {
+            width: min(1240px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        h2 {
+            margin: 0 0 14px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .subtitle {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .server {
+            min-width: 170px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: var(--panel);
+            font-size: 13px;
+        }
+
+        .server strong {
+            display: block;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(300px, 360px) 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel);
+            padding: 16px;
+        }
+
+        .control-panel {
+            position: sticky;
+            top: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #b8c0cc;
+            border-radius: 6px;
+            padding: 0 11px;
+            color: var(--ink);
+            background: #ffffff;
+            font-size: 14px;
+            letter-spacing: 0;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .actions .wide-action {
+            grid-column: 1 / -1;
+        }
+
+        button {
+            min-height: 40px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 0 12px;
+            color: #ffffff;
+            background: var(--blue);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            color: var(--ink);
+            background: #eef2f7;
+            border-color: #cdd5df;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .flow {
+            margin-top: 16px;
+            border-top: 1px solid var(--line);
+            padding-top: 14px;
+        }
+
+        .flow-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .flow code {
+            color: var(--muted);
+            font-family: Consolas, Monaco, monospace;
+            font-size: 12px;
+        }
+
+        .steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .step {
+            border: 1px solid #cdd5df;
+            border-radius: 999px;
+            padding: 4px 8px;
+            color: var(--ink);
+            background: #ffffff;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .workspace {
+            display: grid;
+            gap: 16px;
+        }
+
+        .warehouse-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .status-line {
+            display: grid;
+            grid-template-columns: 1.2fr auto;
+            gap: 10px;
+            align-items: end;
+            min-width: 320px;
+        }
+
+        .metric {
+            min-height: 54px;
+            border-bottom: 1px solid var(--line);
+            padding: 0 4px 10px;
+        }
+
+        .metric span {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .metric strong {
+            display: block;
+            min-height: 22px;
+            color: var(--ink);
+            font-size: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .yard-stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 8px;
+            align-items: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .yard-stats strong {
+            color: var(--ink);
+        }
+
+        .truck-action {
+            min-width: 136px;
+            min-height: 42px;
+            border-radius: 6px;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .truck-action:disabled {
+            color: var(--muted);
+            background: #eef2f7;
+            border-color: #cdd5df;
+            opacity: 1;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 24px;
+            border: 1px solid #cdd5df;
+            border-radius: 999px;
+            padding: 2px 9px;
+            color: var(--ink);
+            background: #eef2f7;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge.completed {
+            background: #ccfbf1;
+            border-color: #99d6ca;
+        }
+
+        .badge.failed {
+            background: #fee4e2;
+            border-color: #f5b5af;
+        }
+
+        .badge.waiting {
+            background: #fef3c7;
+            border-color: #efd28a;
+        }
+
+        .badge.processing {
+            background: #dbeafe;
+            border-color: #a9c7fa;
+        }
+
+        .warehouse-map {
+            position: relative;
+            min-height: 520px;
+            overflow: hidden;
+            border: 1px solid #c7d0dc;
+            border-radius: 8px;
+            background:
+                linear-gradient(90deg, rgba(71, 84, 103, 0.05) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(71, 84, 103, 0.05) 1px, transparent 1px),
+                var(--floor);
+            background-size: 28px 28px;
+        }
+
+        .yard-label {
+            position: absolute;
+            left: 16px;
+            bottom: 12px;
+            color: rgba(71, 84, 103, 0.5);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .belt {
+            position: absolute;
+            border: 1px solid #7d8fa3;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    var(--belt-dark) 0 10px,
+                    var(--belt-light) 10px 17px,
+                    var(--belt-dark) 17px 20px
+                );
+            box-shadow:
+                inset 0 0 0 3px rgba(255, 255, 255, 0.28),
+                0 4px 10px rgba(43, 56, 76, 0.12);
+            animation: beltRollHorizontal 1s linear infinite;
+        }
+
+        .belt-vertical {
+            width: 38px;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    var(--belt-dark) 0 10px,
+                    var(--belt-light) 10px 17px,
+                    var(--belt-dark) 17px 20px
+                );
+            animation-name: beltRollVerticalDown;
+        }
+
+        .belt-left {
+            left: 14%;
+            top: 18%;
+            bottom: 17%;
+            border-radius: 999px;
+            animation-name: beltRollVerticalUp;
+        }
+
+        .belt-top {
+            left: 14%;
+            right: 16%;
+            top: 18%;
+            height: 38px;
+            border-radius: 999px;
+        }
+
+        .belt-right {
+            right: 16%;
+            top: 18%;
+            bottom: 17%;
+            border-radius: 999px;
+            animation-name: beltRollVerticalDown;
+        }
+
+        @keyframes beltRollHorizontal {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 20px 0;
+            }
+        }
+
+        @keyframes beltRollVerticalDown {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 0 20px;
+            }
+        }
+
+        @keyframes beltRollVerticalUp {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 0 -20px;
+            }
+        }
+
+        .station {
+            position: absolute;
+            width: 148px;
+            min-height: 82px;
+            border: 1px solid #b7c2cf;
+            border-radius: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 8px 18px rgba(43, 56, 76, 0.12);
+            z-index: 3;
+        }
+
+        .station strong {
+            display: block;
+            color: var(--ink);
+            font-size: 13px;
+        }
+
+        .station span {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .station .zone-current {
+            margin-top: 8px;
+            border-top: 1px solid #d8e0ea;
+            padding-top: 7px;
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .station-rack-robot {
+            left: 3%;
+            top: 35%;
+        }
+
+        .station-inspection {
+            left: 35%;
+            top: 5%;
+        }
+
+        .station-packing {
+            right: 23%;
+            top: 5%;
+        }
+
+        .station-sort {
+            right: 2.5%;
+            top: 30%;
+        }
+
+        .station-loading {
+            right: 22%;
+            bottom: 7%;
+        }
+
+        .rack {
+            position: absolute;
+            left: 21%;
+            bottom: 13%;
+            width: 158px;
+            height: 190px;
+            border: 1px solid #a9b8c8;
+            border-radius: 6px;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.35) 0 16px,
+                    rgba(71, 84, 103, 0.12) 16px 20px
+                ),
+                var(--rack);
+            box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.24);
+        }
+
+        .rack span {
+            position: absolute;
+            left: 10px;
+            top: 9px;
+            color: #344054;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .rack-slots {
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 14px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .rack-slot {
+            display: block;
+            height: 24px;
+            border: 1px solid #9aaabd;
+            border-radius: 4px;
+            background: #e9eef5;
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
+        }
+
+        .rack-slot.is-full {
+            background: #d8924f;
+        }
+
+        .rack-robot {
+            position: absolute;
+            left: 14%;
+            top: 55%;
+            width: 156px;
+            height: 82px;
+            z-index: 5;
+        }
+
+        .robot-base {
+            position: absolute;
+            left: 6px;
+            bottom: 0;
+            width: 126px;
+            height: 16px;
+            border: 2px solid #7f8ea3;
+            border-radius: 999px;
+            background: #c5d0dd;
+        }
+
+        .robot-column {
+            position: absolute;
+            left: 70px;
+            bottom: 14px;
+            width: 20px;
+            height: 44px;
+            border-radius: 7px;
+            background: #7f8ea3;
+        }
+
+        .robot-joint {
+            position: absolute;
+            left: 60px;
+            bottom: 52px;
+            width: 40px;
+            height: 24px;
+            border: 4px solid #9aaabd;
+            border-radius: 999px;
+            background: #eef2f7;
+            z-index: 2;
+        }
+
+        .robot-arm-link {
+            position: absolute;
+            left: 18px;
+            bottom: 59px;
+            width: 74px;
+            height: 12px;
+            border-radius: 999px;
+            background: #9aaabd;
+            transform: none;
+        }
+
+        .robot-claw {
+            display: none;
+        }
+
+        .rack-robot.is-active {
+            animation: rackRobotSlide 1.9s ease-in-out infinite;
+        }
+
+        @keyframes rackRobotSlide {
+            0%,
+            100% {
+                transform: translateX(38px);
+            }
+            50% {
+                transform: translateX(-18px);
+            }
+        }
+
+        .truck {
+            position: absolute;
+            right: 4%;
+            bottom: 4%;
+            width: 142px;
+            height: 82px;
+            border-radius: 8px 20px 8px 8px;
+            background: #e9edf3;
+            border: 2px solid #7f8ea3;
+            box-shadow: 0 8px 18px rgba(43, 56, 76, 0.14);
+            z-index: 4;
+        }
+
+        .truck::before {
+            content: "";
+            position: absolute;
+            right: -40px;
+            top: 20px;
+            width: 42px;
+            height: 46px;
+            border-radius: 4px 14px 4px 4px;
+            background: #bcc8d7;
+            border: 2px solid #7f8ea3;
+            border-left: 0;
+        }
+
+        .truck::after {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 10px;
+            bottom: -12px;
+            height: 18px;
+            border-radius: 999px;
+            background:
+                radial-gradient(circle at 18px 9px, #111827 0 8px, transparent 9px),
+                radial-gradient(circle at 98px 9px, #111827 0 8px, transparent 9px);
+        }
+
+        .truck.is-departing {
+            animation: truckDepart 1.35s ease-in forwards;
+        }
+
+        .truck.is-arriving {
+            animation: truckArrive 1.2s ease-out forwards;
+        }
+
+        .truck.is-away {
+            opacity: 0;
+            transform: translateX(230px);
+        }
+
+        @keyframes truckDepart {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(230px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes truckArrive {
+            from {
+                transform: translateX(230px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .box-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 7;
+        }
+
+        .box-crate {
+            position: absolute;
+            left: calc(var(--x) * 1%);
+            top: calc((var(--y) * 1%) + (var(--stack) * 6px));
+            width: 48px;
+            height: 36px;
+            transform: translate(-50%, -50%);
+            transition:
+                opacity 220ms ease;
+            border: 2px solid #8a4f24;
+            border-radius: 4px;
+            background:
+                linear-gradient(90deg, transparent 45%, rgba(80, 41, 15, 0.3) 46% 54%, transparent 55%),
+                linear-gradient(0deg, transparent 44%, rgba(80, 41, 15, 0.22) 45% 55%, transparent 56%),
+                var(--crate);
+            box-shadow:
+                0 8px 14px rgba(80, 41, 15, 0.24),
+                inset 0 0 0 2px rgba(255, 255, 255, 0.16);
+        }
+
+        .box-crate::before {
+            content: "";
+            position: absolute;
+            left: 5px;
+            right: 5px;
+            top: -8px;
+            height: 8px;
+            transform: skewX(-24deg);
+            transform-origin: bottom;
+            border: 2px solid #8a4f24;
+            border-bottom: 0;
+            border-radius: 3px 3px 0 0;
+            background: #d8924f;
+        }
+
+        .box-crate::after {
+            content: attr(data-label);
+            position: absolute;
+            left: 50%;
+            bottom: -19px;
+            transform: translateX(-50%);
+            min-width: 58px;
+            max-width: 92px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            border-radius: 999px;
+            padding: 2px 6px;
+            color: #ffffff;
+            background: rgba(17, 24, 39, 0.78);
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .box-crate.truck-loaded::after {
+            bottom: -16px;
+            min-width: 44px;
+            max-width: 52px;
+            padding: 1px 4px;
+            font-size: 9px;
+        }
+
+        .box-crate.processing {
+            animation: boxPulse 1.35s ease-in-out infinite;
+        }
+
+        .box-crate.waiting {
+            filter: saturate(0.78);
+        }
+
+        .box-crate.completed {
+            border-color: #0f5f58;
+            background:
+                linear-gradient(90deg, transparent 45%, rgba(15, 95, 88, 0.24) 46% 54%, transparent 55%),
+                linear-gradient(0deg, transparent 44%, rgba(15, 95, 88, 0.18) 45% 55%, transparent 56%),
+                #98d6c8;
+        }
+
+        .box-crate.failed {
+            border-color: #8a261d;
+            background:
+                linear-gradient(90deg, transparent 45%, rgba(138, 38, 29, 0.25) 46% 54%, transparent 55%),
+                linear-gradient(0deg, transparent 44%, rgba(138, 38, 29, 0.18) 45% 55%, transparent 56%),
+                #e9a49d;
+        }
+
+        .box-crate.truck-departing {
+            animation: cargoDepart 1.35s ease-in forwards;
+        }
+
+        @keyframes cargoDepart {
+            from {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+            to {
+                transform: translate(-50%, -50%) translateX(230px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes boxPulse {
+            0%,
+            100% {
+                box-shadow:
+                    0 8px 14px rgba(80, 41, 15, 0.24),
+                    inset 0 0 0 2px rgba(255, 255, 255, 0.16);
+            }
+            50% {
+                box-shadow:
+                    0 0 0 5px rgba(37, 99, 235, 0.14),
+                    0 10px 16px rgba(80, 41, 15, 0.24),
+                    inset 0 0 0 2px rgba(255, 255, 255, 0.16);
+            }
+        }
+
+        .log {
+            height: 148px;
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            background: #0b1220;
+            color: #d7e1ee;
+            font-family: Consolas, Monaco, monospace;
+            font-size: 12px;
+        }
+
+        .log div {
+            padding-bottom: 5px;
+            overflow-wrap: anywhere;
+        }
+
+        .orders {
+            margin-top: 16px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid var(--line);
+            padding: 9px 6px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .empty-row {
+            color: var(--muted);
+        }
+
+        @media (max-width: 1040px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .control-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 760px) {
+            header,
+            .warehouse-head,
+            .status-line,
+            .actions {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                width: min(100% - 20px, 1180px);
+                padding: 18px 0;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .yard-stats {
+                justify-content: flex-start;
+            }
+
+            .warehouse-map {
+                min-height: 620px;
+            }
+
+            .station {
+                width: 128px;
+            }
+
+            .station-rack-robot {
+                left: 2%;
+                top: 36%;
+            }
+
+            .station-inspection {
+                left: 28%;
+                top: 4%;
+            }
+
+            .station-packing {
+                right: 12%;
+                top: 4%;
+            }
+
+            .station-sort {
+                right: 2%;
+                top: 30%;
+            }
+
+            .station-loading {
+                right: 20%;
+                bottom: 8%;
+            }
+
+            .truck {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <header>
+        <div>
+            <h1>Flower Logistics Control Sample</h1>
+            <p class="subtitle">Orders become boxes, boxes queue at automated Zones, and each Zone Step advances itself.</p>
+        </div>
+        <div class="server">
+            <strong>Local server</strong>
+            <span>http://localhost:8081</span>
+        </div>
+    </header>
+
+    <section class="layout">
+        <div class="panel control-panel">
+            <h2>Work Order</h2>
+            <label for="workOrderId">Work order id</label>
+            <input id="workOrderId" autocomplete="off">
+            <div class="actions">
+                <button id="startBtn" class="wide-action" type="button">Create Order</button>
+                <button id="burstBtn" type="button">Create 5</button>
+                <button id="newIdBtn" class="secondary" type="button">New Id</button>
+                <button id="refreshBtn" class="secondary wide-action" type="button">Refresh</button>
+            </div>
+
+            <div class="flow">
+                <div class="flow-title">
+                    <span>Always-on Zone Flows</span>
+                    <code>warehouse-zone/{zone}</code>
+                </div>
+                <div class="steps">
+                    <span class="step">await-rack-box</span>
+                    <span class="step">grip-rack-box</span>
+                    <span class="step">place-on-conveyor</span>
+                    <span class="step">await-box</span>
+                    <span class="step">inspect-box</span>
+                    <span class="step">pack-box</span>
+                    <span class="step">sort-box</span>
+                    <span class="step">load-truck</span>
+                    <span class="step">release-box</span>
+                    <span class="step">goTo(await-box)</span>
+                    <span class="step">rack-robot-zone</span>
+                    <span class="step">inspection-zone</span>
+                    <span class="step">packing-zone</span>
+                    <span class="step">sortation-zone</span>
+                    <span class="step">loading-zone</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="workspace">
+            <div class="panel">
+                <div class="warehouse-head">
+                    <div>
+                        <h2>Warehouse Floor</h2>
+                        <div class="status-line">
+                            <div class="metric">
+                                <span>Latest order</span>
+                                <strong id="currentOrder">-</strong>
+                            </div>
+                            <div class="metric">
+                                <span>Status</span>
+                                <strong><span id="currentStatus" class="badge">IDLE</span></strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="yard-stats">
+                        <span><strong id="processingCount">0</strong> processing</span>
+                        <span><strong id="waitingCount">0</strong> waiting</span>
+                        <span><strong id="completedCount">0</strong>/6 loaded</span>
+                        <span id="truckStatus">Truck 1 docked</span>
+                        <button id="truckDepartBtn" class="truck-action" type="button" disabled>Depart Truck</button>
+                    </div>
+                </div>
+
+                <div class="warehouse-map" aria-label="Automated warehouse conveyor map">
+                    <div class="belt belt-vertical belt-left" aria-hidden="true"></div>
+                    <div class="belt belt-top" aria-hidden="true"></div>
+                    <div class="belt belt-vertical belt-right" aria-hidden="true"></div>
+
+                    <div class="station station-rack-robot">
+                        <strong>Rack robot</strong>
+                        <span>moves a box from Goods rack to belt</span>
+                        <span id="rackRobotCurrent" class="zone-current">Idle</span>
+                    </div>
+                    <div class="station station-inspection">
+                        <strong>Inspection</strong>
+                        <span>weight and vision check</span>
+                        <span id="inspectionCurrent" class="zone-current">Idle</span>
+                    </div>
+                    <div class="station station-packing">
+                        <strong>Packing</strong>
+                        <span>dunnage, seal, label</span>
+                        <span id="packingCurrent" class="zone-current">Idle</span>
+                    </div>
+                    <div class="station station-sort">
+                        <strong>Sortation</strong>
+                        <span>route gate to outbound dock</span>
+                        <span id="sortationCurrent" class="zone-current">Idle</span>
+                    </div>
+                    <div class="station station-loading">
+                        <strong>Loading</strong>
+                        <span>lift box into truck</span>
+                        <span id="loadingCurrent" class="zone-current">Idle</span>
+                    </div>
+
+                    <div class="rack">
+                        <span id="goodsRackLabel">Goods rack 0/8</span>
+                        <div class="rack-slots" aria-hidden="true">
+                            <i class="rack-slot"></i>
+                            <i class="rack-slot"></i>
+                            <i class="rack-slot"></i>
+                            <i class="rack-slot"></i>
+                            <i class="rack-slot"></i>
+                            <i class="rack-slot"></i>
+                            <i class="rack-slot"></i>
+                            <i class="rack-slot"></i>
+                        </div>
+                    </div>
+                    <div id="rackRobot" class="rack-robot" aria-hidden="true">
+                        <div class="robot-base"></div>
+                        <div class="robot-column"></div>
+                        <div class="robot-joint"></div>
+                        <div class="robot-arm-link"></div>
+                        <div class="robot-claw"></div>
+                    </div>
+                    <div id="truck" class="truck" aria-hidden="true"></div>
+                    <div id="boxLayer" class="box-layer"></div>
+                    <div class="yard-label">AUTOMATED ZONE CONVEYOR</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Operations Feed</h2>
+                <div id="log" class="log" aria-live="polite"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel orders">
+        <h2>Work Orders</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Work order</th>
+                    <th>Stage</th>
+                    <th>Status</th>
+                    <th>Updated at</th>
+                </tr>
+                </thead>
+                <tbody id="ordersBody">
+                <tr>
+                    <td class="empty-row" colspan="4">No work orders loaded.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    const workOrderIdField = document.querySelector("#workOrderId");
+    const startBtn = document.querySelector("#startBtn");
+    const burstBtn = document.querySelector("#burstBtn");
+    const refreshBtn = document.querySelector("#refreshBtn");
+    const newIdBtn = document.querySelector("#newIdBtn");
+    const currentOrder = document.querySelector("#currentOrder");
+    const currentStatus = document.querySelector("#currentStatus");
+    const processingCount = document.querySelector("#processingCount");
+    const waitingCount = document.querySelector("#waitingCount");
+    const completedCount = document.querySelector("#completedCount");
+    const truckStatus = document.querySelector("#truckStatus");
+    const truckDepartBtn = document.querySelector("#truckDepartBtn");
+    const ordersBody = document.querySelector("#ordersBody");
+    const logEl = document.querySelector("#log");
+    const boxLayer = document.querySelector("#boxLayer");
+    const rackRobot = document.querySelector("#rackRobot");
+    const truck = document.querySelector("#truck");
+    const goodsRackLabel = document.querySelector("#goodsRackLabel");
+    const rackSlots = Array.from(document.querySelectorAll(".rack-slot"));
+    const zoneCurrentEls = {
+        rackRobot: document.querySelector("#rackRobotCurrent"),
+        inspection: document.querySelector("#inspectionCurrent"),
+        packing: document.querySelector("#packingCurrent"),
+        sortation: document.querySelector("#sortationCurrent"),
+        loading: document.querySelector("#loadingCurrent")
+    };
+
+    const ordersById = new Map();
+    const recentOrderIds = [];
+    const boxVisuals = new Map();
+    const departingCargoIds = new Set();
+    const departingCargoIndexById = new Map();
+    const TRUCK_CAPACITY = 6;
+    const BOX_PROGRESS_PER_SECOND = 0.34;
+    const CONVEYOR_PATH = [
+        { x: 29, y: 69 },
+        { x: 16, y: 70 },
+        { x: 16, y: 20 },
+        { x: 84, y: 20 },
+        { x: 84, y: 72 }
+    ];
+    let animationFrameId = null;
+    let lastAnimationTs = 0;
+    let activeWorkOrderId = "";
+    let allOrdersTimer = null;
+    let idSequence = 0;
+    let generatedInputValue = "";
+    let truckTripNo = 1;
+    let truckAnimating = false;
+    let truckDock = {
+        status: "DOCKED",
+        truckNo: 1,
+        nextTruckNo: 2,
+        loadedCount: 0,
+        capacity: TRUCK_CAPACITY,
+        acceptingLoading: true,
+        canDepart: false,
+        loadedWorkOrderIds: [],
+        shippedWorkOrderIds: []
+    };
+
+    const waitingStatuses = new Set([
+        "WAITING_RACK_ROBOT",
+        "WAITING_INSPECTION",
+        "WAITING_PACKING",
+        "WAITING_SORTATION",
+        "WAITING_LOADING"
+    ]);
+
+    const processingStatuses = new Set([
+        "ROBOT_GRIPPING",
+        "ROBOT_PLACING",
+        "INSPECTING",
+        "PACKING",
+        "SORTING",
+        "LOADING_TRUCK"
+    ]);
+
+    const completedStatuses = new Set([
+        "COMPLETED",
+        "SHIPPED",
+        "FAILED"
+    ]);
+
+    const statusStages = {
+        CREATED: "Order created",
+        ACCEPTED: "Goods rack",
+        WAITING_RACK_ROBOT: "Goods rack queue",
+        ROBOT_GRIPPING: "Robot gripping from rack",
+        ROBOT_PLACING: "Robot placing on belt",
+        ON_CONVEYOR: "On conveyor",
+        WAITING_INSPECTION: "Inspection queue",
+        INSPECTING: "Inspection",
+        INSPECTED: "Inspection passed",
+        WAITING_PACKING: "Packing queue",
+        PACKING: "Packing",
+        PACKED: "Packed",
+        WAITING_SORTATION: "Sortation queue",
+        SORTING: "Sortation",
+        SORTED: "Sorted to dock",
+        WAITING_LOADING: "Loading queue",
+        LOADING_TRUCK: "Truck loading",
+        LOADED: "Loaded",
+        COMPLETED: "Completed",
+        SHIPPED: "Truck departed",
+        FAILED: "Exception lane"
+    };
+
+    const statusPositions = {
+        CREATED: { x: 29, y: 78 },
+        ACCEPTED: { x: 29, y: 76 },
+        WAITING_RACK_ROBOT: { x: 29, y: 69 },
+        ROBOT_GRIPPING: { x: 29, y: 69 },
+        ROBOT_PLACING: { x: 16, y: 70 },
+        ON_CONVEYOR: { x: 16, y: 70 },
+        WAITING_INSPECTION: { x: 40, y: 20 },
+        INSPECTING: { x: 48, y: 20 },
+        INSPECTED: { x: 56, y: 20 },
+        WAITING_PACKING: { x: 64, y: 20 },
+        PACKING: { x: 71, y: 20 },
+        PACKED: { x: 82, y: 30 },
+        WAITING_SORTATION: { x: 84, y: 40 },
+        SORTING: { x: 84, y: 51 },
+        SORTED: { x: 84, y: 61 },
+        WAITING_LOADING: { x: 84, y: 70 },
+        LOADING_TRUCK: { x: 84, y: 79 },
+        LOADED: { x: 92, y: 81 },
+        COMPLETED: { x: 92, y: 81 },
+        SHIPPED: { x: 98, y: 81 },
+        FAILED: { x: 50, y: 86 }
+    };
+
+    const statusProgress = {
+        CREATED: 0,
+        ACCEPTED: 0,
+        WAITING_RACK_ROBOT: 0,
+        ROBOT_GRIPPING: 0,
+        ROBOT_PLACING: 0.08,
+        ON_CONVEYOR: 0.12,
+        WAITING_INSPECTION: 0.34,
+        INSPECTING: 0.38,
+        INSPECTED: 0.42,
+        WAITING_PACKING: 0.52,
+        PACKING: 0.56,
+        PACKED: 0.60,
+        WAITING_SORTATION: 0.72,
+        SORTING: 0.76,
+        SORTED: 0.80,
+        WAITING_LOADING: 0.90,
+        LOADING_TRUCK: 0.96,
+        LOADED: 1,
+        COMPLETED: 1,
+        SHIPPED: 1,
+        FAILED: 0
+    };
+
+    function nextWorkOrderId() {
+        idSequence += 1;
+        return `WO-${String(idSequence).padStart(3, "0")}`;
+    }
+
+    function setNewWorkOrderId() {
+        generatedInputValue = nextWorkOrderId();
+        workOrderIdField.value = generatedInputValue;
+    }
+
+    function previewNextWorkOrderId() {
+        generatedInputValue = `WO-${String(idSequence + 1).padStart(3, "0")}`;
+        workOrderIdField.value = generatedInputValue;
+    }
+
+    function log(message) {
+        const line = document.createElement("div");
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logEl.prepend(line);
+    }
+
+    function setBusy(busy) {
+        startBtn.disabled = busy;
+        burstBtn.disabled = busy;
+        refreshBtn.disabled = busy;
+        newIdBtn.disabled = busy;
+    }
+
+    function paintStatus(status) {
+        currentStatus.textContent = status || "PENDING";
+        currentStatus.className = badgeClass(status).join(" ");
+    }
+
+    async function request(path, options = {}) {
+        const response = await fetch(path, options);
+        if (response.status === 404) {
+            return null;
+        }
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`${response.status} ${response.statusText} ${text}`.trim());
+        }
+        const text = await response.text();
+        return text ? JSON.parse(text) : null;
+    }
+
+    async function createOrderFromInput() {
+        const workOrderId = workOrderIdField.value.trim();
+        if (!workOrderId) {
+            workOrderIdField.focus();
+            return;
+        }
+
+        setBusy(true);
+        try {
+            await createOrder(workOrderId);
+            setNewWorkOrderId();
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    async function createOrder(workOrderId) {
+        const submitted = {
+            workOrderId,
+            status: "CREATED",
+            updatedAt: new Date().toISOString()
+        };
+        activeWorkOrderId = workOrderId;
+        applyOrder(submitted);
+        updateCurrent(submitted);
+
+        const accepted = await request(`/work-orders/${encodeURIComponent(workOrderId)}`, {
+            method: "POST"
+        });
+        const order = accepted || submitted;
+        applyOrder(order);
+        updateCurrent(order);
+        log(`created ${workOrderId}`);
+    }
+
+    async function createBurst() {
+        setBusy(true);
+        try {
+            for (let index = 0; index < 5; index += 1) {
+                const workOrderId = nextWorkOrderId();
+                await createOrder(workOrderId);
+            }
+            setNewWorkOrderId();
+        } catch (error) {
+            log(error.message);
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    async function refreshOrders() {
+        const orders = await request("/work-orders");
+        if (!orders || orders.length === 0) {
+            resetClientOrders();
+            ordersBody.innerHTML = `<tr><td class="empty-row" colspan="4">No work orders loaded.</td></tr>`;
+            renderBoxes();
+            renderYardStats();
+            return;
+        }
+
+        syncIdSequenceFromOrders(orders);
+        if (!activeWorkOrderId && (!workOrderIdField.value.trim() || workOrderIdField.value === generatedInputValue)) {
+            previewNextWorkOrderId();
+        }
+
+        orders.forEach(order => {
+            applyOrder(order, { render: false });
+        });
+
+        const rows = [...ordersById.values()]
+            .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+
+        ordersBody.innerHTML = rows
+            .map(order => `
+                <tr>
+                    <td>${escapeHtml(order.workOrderId)}</td>
+                    <td>${escapeHtml(stageText(order))}</td>
+                    <td>${statusBadge(order.status)}</td>
+                    <td>${escapeHtml(formatDateTime(order.updatedAt))}</td>
+                </tr>
+            `)
+            .join("");
+
+        if (activeWorkOrderId && ordersById.has(activeWorkOrderId)) {
+            updateCurrent(ordersById.get(activeWorkOrderId));
+        } else if (rows.length > 0) {
+            activeWorkOrderId = rows[0].workOrderId;
+            updateCurrent(rows[0]);
+        }
+
+        renderBoxes();
+        renderYardStats();
+    }
+
+    function resetClientOrders() {
+        ordersById.clear();
+        recentOrderIds.length = 0;
+        boxVisuals.clear();
+        boxLayer.innerHTML = "";
+        departingCargoIds.clear();
+        departingCargoIndexById.clear();
+        truckDock = {
+            status: "DOCKED",
+            truckNo: 1,
+            nextTruckNo: 2,
+            loadedCount: 0,
+            capacity: TRUCK_CAPACITY,
+            acceptingLoading: true,
+            canDepart: false,
+            loadedWorkOrderIds: [],
+            shippedWorkOrderIds: []
+        };
+        truckTripNo = 1;
+        truckAnimating = false;
+        truck.classList.remove("is-departing", "is-arriving", "is-away");
+        activeWorkOrderId = "";
+        idSequence = 0;
+        currentOrder.textContent = "-";
+        paintStatus("IDLE");
+        setNewWorkOrderId();
+    }
+
+    function syncIdSequenceFromOrders(orders) {
+        orders.forEach(order => syncIdSequenceFromOrderId(order.workOrderId));
+    }
+
+    function syncIdSequenceFromOrderId(workOrderId) {
+        const match = /^WO-(\d+)$/.exec(String(workOrderId || ""));
+        if (match) {
+            idSequence = Math.max(idSequence, Number(match[1]));
+        }
+    }
+
+    function applyOrder(order, options = {}) {
+        if (!order || !order.workOrderId) {
+            return;
+        }
+
+        const previous = ordersById.get(order.workOrderId);
+        const merged = {
+            ...(previous || {}),
+            ...order
+        };
+        ordersById.set(order.workOrderId, merged);
+        rememberRecentOrder(order.workOrderId);
+
+        syncIdSequenceFromOrderId(merged.workOrderId);
+
+        if (options.render !== false) {
+            renderBoxes();
+            renderYardStats();
+        }
+    }
+
+    function rememberRecentOrder(workOrderId) {
+        const existingIndex = recentOrderIds.indexOf(workOrderId);
+        if (existingIndex >= 0) {
+            recentOrderIds.splice(existingIndex, 1);
+        }
+        recentOrderIds.unshift(workOrderId);
+        recentOrderIds.splice(36);
+    }
+
+    function updateCurrent(order) {
+        currentOrder.textContent = order.workOrderId;
+        paintStatus(order.status);
+    }
+
+    function renderBoxes() {
+        const truckOrders = currentTruckOrders();
+        const truckOrderIds = new Set(truckOrders.map(order => order.workOrderId));
+        const truckIndexById = new Map(truckOrders
+            .map((order, index) => [order.workOrderId, index]));
+        const visibleOrderIds = prioritizedVisibleOrderIds();
+        const visibleOrders = visibleOrderIds
+            .map(workOrderId => ordersById.get(workOrderId))
+            .filter(order => order && (order.status !== "SHIPPED" || departingCargoIds.has(order.workOrderId)));
+        const waitingLoadingIndexById = new Map(visibleOrders
+            .filter(order => order.status === "WAITING_LOADING")
+            .sort((a, b) => String(a.updatedAt).localeCompare(String(b.updatedAt)))
+            .map((order, index) => [order.workOrderId, index]));
+        const visibleIds = new Set(visibleOrders.map(order => order.workOrderId));
+
+        Array.from(boxLayer.children).forEach(child => {
+            if (!visibleIds.has(child.dataset.workOrderId)) {
+                boxVisuals.delete(child.dataset.workOrderId);
+                child.remove();
+            }
+        });
+
+        visibleOrders.forEach((order, index) => {
+            const visual = ensureBoxVisual(order);
+            visual.targetProgress = Math.max(visual.targetProgress, progressForStatus(order.status));
+            visual.order = order;
+            visual.index = index;
+            visual.truckIndex = truckIndexById.get(order.workOrderId);
+            visual.waitingLoadingIndex = waitingLoadingIndexById.get(order.workOrderId);
+
+            const classes = ["box-crate"];
+            if (order.status === "FAILED") {
+                classes.push("failed");
+            } else if (completedStatuses.has(order.status)) {
+                classes.push("completed");
+            } else if (waitingStatuses.has(order.status)) {
+                classes.push("waiting");
+            } else {
+                classes.push("processing");
+            }
+            if (departingCargoIds.has(order.workOrderId)) {
+                classes.push("truck-departing");
+            }
+            if ((truckOrderIds.has(order.workOrderId) && visual.progress >= 0.98)
+                    || departingCargoIds.has(order.workOrderId)) {
+                classes.push("truck-loaded");
+            }
+
+            let box = Array.from(boxLayer.children)
+                .find(child => child.dataset.workOrderId === order.workOrderId);
+            if (!box) {
+                box = document.createElement("div");
+                box.dataset.workOrderId = order.workOrderId;
+                boxLayer.appendChild(box);
+            }
+
+            visual.box = box;
+            box.className = classes.join(" ");
+            box.dataset.label = shortOrderId(order.workOrderId);
+            box.title = order.workOrderId;
+            paintBoxVisual(visual);
+        });
+
+        ensureAnimationLoop();
+    }
+
+    function prioritizedVisibleOrderIds() {
+        const ids = [];
+        const add = workOrderId => {
+            if (workOrderId && !ids.includes(workOrderId)) {
+                ids.push(workOrderId);
+            }
+        };
+
+        (truckDock.loadedWorkOrderIds || []).forEach(add);
+        departingCargoIds.forEach(add);
+
+        const waitingVisibleLimits = {
+            WAITING_RACK_ROBOT: 4,
+            WAITING_INSPECTION: 2,
+            WAITING_PACKING: 2,
+            WAITING_SORTATION: 2,
+            WAITING_LOADING: 4
+        };
+        const waitingVisibleCounts = {};
+
+        [...ordersById.values()]
+            .filter(order => processingStatuses.has(order.status) || waitingStatuses.has(order.status))
+            .sort((a, b) => String(a.updatedAt).localeCompare(String(b.updatedAt)))
+            .forEach(order => {
+                if (processingStatuses.has(order.status)) {
+                    add(order.workOrderId);
+                    return;
+                }
+
+                const limit = waitingVisibleLimits[order.status] || 1;
+                const count = waitingVisibleCounts[order.status] || 0;
+                if (count < limit) {
+                    add(order.workOrderId);
+                }
+                waitingVisibleCounts[order.status] = count + 1;
+            });
+
+        return ids.slice(0, 48);
+    }
+
+    function ensureBoxVisual(order) {
+        let visual = boxVisuals.get(order.workOrderId);
+        if (!visual) {
+            visual = {
+                progress: 0,
+                targetProgress: progressForStatus(order.status),
+                order,
+                index: 0,
+                truckIndex: undefined,
+                waitingLoadingIndex: undefined,
+                box: null
+            };
+            boxVisuals.set(order.workOrderId, visual);
+        }
+        return visual;
+    }
+
+    function progressForStatus(status) {
+        return statusProgress[status] ?? 0;
+    }
+
+    function ensureAnimationLoop() {
+        if (animationFrameId == null) {
+            lastAnimationTs = performance.now();
+            animationFrameId = requestAnimationFrame(animateBoxes);
+        }
+    }
+
+    function animateBoxes(timestamp) {
+        const deltaSeconds = Math.min((timestamp - lastAnimationTs) / 1000, 0.1);
+        lastAnimationTs = timestamp;
+        let stillMoving = false;
+
+        boxVisuals.forEach(visual => {
+            if (!visual.box || !visual.box.isConnected) {
+                return;
+            }
+
+            if (visual.progress < visual.targetProgress) {
+                visual.progress = Math.min(
+                        visual.targetProgress,
+                        visual.progress + (BOX_PROGRESS_PER_SECOND * deltaSeconds));
+                stillMoving = true;
+            }
+            paintBoxVisual(visual);
+        });
+
+        if (stillMoving) {
+            animationFrameId = requestAnimationFrame(animateBoxes);
+        } else {
+            animationFrameId = null;
+        }
+    }
+
+    function paintBoxVisual(visual) {
+        if (!visual.box) {
+            return;
+        }
+
+        const position = visualPosition(visual);
+        setBoxPosition(visual.box, position);
+    }
+
+    function visualPosition(visual) {
+        const order = visual.order;
+        if (order.status === "FAILED") {
+            return {
+                ...statusPositions.FAILED,
+                stack: 0
+            };
+        }
+
+        if (departingCargoIds.has(order.workOrderId)) {
+            return truckSlotPosition(departingCargoIndexById.get(order.workOrderId) || 0);
+        }
+
+        if (order.status === "WAITING_LOADING" && visual.progress >= 0.88) {
+            return loadingQueuePosition(visual.waitingLoadingIndex || 0);
+        }
+
+        if (order.status === "LOADING_TRUCK" && visual.progress >= 0.94) {
+            return {
+                x: 84,
+                y: 72,
+                stack: 0
+            };
+        }
+
+        if ((order.status === "COMPLETED" || order.status === "LOADED")
+                && visual.truckIndex !== undefined
+                && visual.progress >= 0.98) {
+            return truckSlotPosition(visual.truckIndex);
+        }
+
+        return positionOnConveyor(visual.progress, visual.index % 4);
+    }
+
+    function loadingQueuePosition(queueIndex) {
+        return {
+            x: queueIndex % 2 === 0 ? 81 : 88,
+            y: 58 + (Math.floor((queueIndex % 6) / 2) * 10),
+            stack: 0
+        };
+    }
+
+    function truckSlotPosition(truckIndex) {
+        const column = truckIndex % 3;
+        const row = Math.floor((truckIndex % TRUCK_CAPACITY) / 3);
+        const truckColumns = [84, 90, 96];
+        return {
+            x: truckColumns[column],
+            y: 80 + (row * 10),
+            stack: 0
+        };
+    }
+
+    function positionOnConveyor(progress, stack) {
+        const clamped = Math.max(0, Math.min(progress, 1));
+        const segmentCount = CONVEYOR_PATH.length - 1;
+        const scaled = clamped * segmentCount;
+        const segment = Math.min(Math.floor(scaled), segmentCount - 1);
+        const local = scaled - segment;
+        const from = CONVEYOR_PATH[segment];
+        const to = CONVEYOR_PATH[segment + 1];
+        return {
+            x: from.x + ((to.x - from.x) * local),
+            y: from.y + ((to.y - from.y) * local),
+            stack
+        };
+    }
+
+    function setBoxPosition(box, position) {
+        box.style.setProperty("--x", position.x);
+        box.style.setProperty("--y", position.y);
+        box.style.setProperty("--stack", position.stack || 0);
+    }
+
+    function renderYardStats() {
+        const orders = [...ordersById.values()];
+        const loadedOrders = currentTruckOrders(orders);
+        const dockCapacity = truckDock.capacity || TRUCK_CAPACITY;
+        const dockLoadedCount = Number.isFinite(truckDock.loadedCount)
+                ? truckDock.loadedCount
+                : loadedOrders.length;
+        processingCount.textContent = orders.filter(order => processingStatuses.has(order.status)).length;
+        waitingCount.textContent = orders.filter(order => waitingStatuses.has(order.status)).length;
+        completedCount.textContent = dockLoadedCount;
+        truckDepartBtn.disabled = truckAnimating || truckDock.canDepart !== true;
+        truckStatus.textContent = truckStatusText(dockLoadedCount, dockCapacity);
+        rackRobot.classList.toggle("is-active", orders.some(order =>
+            order.status === "WAITING_RACK_ROBOT"
+                    || order.status === "ROBOT_GRIPPING"
+                    || order.status === "ROBOT_PLACING"));
+        renderZonePanels(orders);
+    }
+
+    function currentTruckOrders(orders = [...ordersById.values()]) {
+        if (Array.isArray(truckDock.loadedWorkOrderIds) && truckDock.loadedWorkOrderIds.length > 0) {
+            return truckDock.loadedWorkOrderIds
+                .map(workOrderId => ordersById.get(workOrderId))
+                .filter(order => order && order.status === "COMPLETED");
+        }
+
+        return orders
+            .filter(order => order.status === "COMPLETED")
+            .sort((a, b) => String(a.updatedAt).localeCompare(String(b.updatedAt)))
+            .slice(0, truckDock.capacity || TRUCK_CAPACITY);
+    }
+
+    function truckStatusText(loadedCount, capacity) {
+        if (truckAnimating) {
+            return `Truck ${truckTripNo} departing`;
+        }
+
+        if (truckDock.status === "AWAITING_TRUCK") {
+            return `Waiting for Truck ${truckDock.nextTruckNo}`;
+        }
+
+        const label = loadedCount >= capacity ? "full" : "docked";
+        return `Truck ${truckDock.truckNo || truckTripNo} ${label}`;
+    }
+
+    async function refreshTruckDock() {
+        const dock = await request("/truck-dock");
+        if (dock) {
+            applyTruckDock(dock);
+        }
+    }
+
+    function applyTruckDock(dock) {
+        const previousStatus = truckDock.status;
+        truckDock = {
+            ...truckDock,
+            ...dock
+        };
+        truckTripNo = truckDock.truckNo || truckTripNo;
+
+        if (truckAnimating) {
+            renderYardStats();
+            return;
+        }
+
+        if (previousStatus === "AWAITING_TRUCK" && truckDock.status === "DOCKED") {
+            truck.classList.remove("is-away", "is-departing");
+            truck.classList.add("is-arriving");
+            log(`truck ${truckDock.truckNo} arrived`);
+            setTimeout(() => {
+                truck.classList.remove("is-arriving");
+                renderYardStats();
+            }, 1_200);
+        } else if (truckDock.status === "AWAITING_TRUCK") {
+            truck.classList.remove("is-departing", "is-arriving");
+            truck.classList.add("is-away");
+        } else {
+            truck.classList.remove("is-departing", "is-arriving", "is-away");
+        }
+
+        renderYardStats();
+    }
+
+    async function departTruck() {
+        if (truckAnimating || truckDock.canDepart !== true) {
+            return;
+        }
+
+        const loadedOrders = currentTruckOrders();
+        if (!loadedOrders.length) {
+            return;
+        }
+
+        truckAnimating = true;
+        loadedOrders.forEach((order, index) => {
+            departingCargoIds.add(order.workOrderId);
+            departingCargoIndexById.set(order.workOrderId, index);
+        });
+        truck.classList.remove("is-arriving", "is-away");
+        truck.classList.add("is-departing");
+        renderBoxes();
+        renderYardStats();
+
+        try {
+            const dock = await request("/truck-dock/depart", {
+                method: "POST"
+            });
+            (dock.shippedWorkOrderIds || []).forEach(workOrderId => {
+                const order = ordersById.get(workOrderId);
+                if (order) {
+                    ordersById.set(workOrderId, {
+                        ...order,
+                        status: "SHIPPED",
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+            });
+            applyTruckDock(dock);
+            log(`truck ${truckTripNo} departed with ${loadedOrders.map(order => order.workOrderId).join(", ")}`);
+            renderBoxes();
+            setTimeout(() => {
+                loadedOrders.forEach(order => {
+                    departingCargoIds.delete(order.workOrderId);
+                    departingCargoIndexById.delete(order.workOrderId);
+                });
+                truck.classList.remove("is-departing");
+                truck.classList.add("is-away");
+                truckAnimating = false;
+                renderBoxes();
+                renderYardStats();
+                refreshAll().catch(error => log(error.message));
+            }, 1_350);
+        } catch (error) {
+            loadedOrders.forEach(order => {
+                departingCargoIds.delete(order.workOrderId);
+                departingCargoIndexById.delete(order.workOrderId);
+            });
+            truck.classList.remove("is-departing");
+            truckAnimating = false;
+            renderBoxes();
+            renderYardStats();
+            log(error.message);
+        }
+    }
+
+    function renderZonePanels(orders) {
+        const rackWaiting = orders.filter(order => order.status === "WAITING_RACK_ROBOT").length;
+        goodsRackLabel.textContent = `Goods rack ${rackWaiting}/8`;
+        rackSlots.forEach((slot, index) => {
+            slot.classList.toggle("is-full", index < rackWaiting);
+        });
+
+        setZoneCurrent(zoneCurrentEls.rackRobot, zoneLabel(
+                orders,
+                ["ROBOT_GRIPPING", "ROBOT_PLACING"],
+                ["WAITING_RACK_ROBOT"]));
+        setZoneCurrent(zoneCurrentEls.inspection, zoneLabel(
+                orders,
+                ["INSPECTING"],
+                ["WAITING_INSPECTION"]));
+        setZoneCurrent(zoneCurrentEls.packing, zoneLabel(
+                orders,
+                ["PACKING"],
+                ["WAITING_PACKING"]));
+        setZoneCurrent(zoneCurrentEls.sortation, zoneLabel(
+                orders,
+                ["SORTING"],
+                ["WAITING_SORTATION"]));
+        setZoneCurrent(zoneCurrentEls.loading, zoneLabel(
+                orders,
+                ["LOADING_TRUCK"],
+                ["WAITING_LOADING"]));
+    }
+
+    function zoneLabel(orders, activeStatuses, waitingStatusesForZone) {
+        const activeSet = new Set(activeStatuses);
+        const waitingSet = new Set(waitingStatusesForZone);
+        const active = orders.find(order => activeSet.has(order.status));
+        if (active) {
+            return `Box ${shortOrderId(active.workOrderId)}`;
+        }
+
+        const waiting = orders.filter(order => waitingSet.has(order.status)).length;
+        if (waiting > 0) {
+            return `Queue ${waiting}`;
+        }
+
+        return "Idle";
+    }
+
+    function setZoneCurrent(element, text) {
+        if (element) {
+            element.textContent = text;
+        }
+    }
+
+    function startAllOrdersRefresh() {
+        clearInterval(allOrdersTimer);
+        allOrdersTimer = setInterval(() => {
+            refreshAll().catch(error => log(error.message));
+        }, 650);
+    }
+
+    async function refreshAll() {
+        await refreshTruckDock();
+        await refreshOrders();
+    }
+
+    function stageText(order) {
+        return statusStages[order.status] || "Order intake";
+    }
+
+    function shortOrderId(workOrderId) {
+        return String(workOrderId || "");
+    }
+
+    function badgeClass(status) {
+        const classes = ["badge"];
+        if (status === "COMPLETED") {
+            classes.push("completed");
+        } else if (status === "FAILED") {
+            classes.push("failed");
+        } else if (waitingStatuses.has(status)) {
+            classes.push("waiting");
+        } else if (status && status !== "IDLE" && status !== "-") {
+            classes.push("processing");
+        }
+        return classes;
+    }
+
+    function statusBadge(status) {
+        const safeStatus = status || "-";
+        return `<span class="${badgeClass(safeStatus).join(" ")}">${escapeHtml(safeStatus)}</span>`;
+    }
+
+    function formatDateTime(value) {
+        if (!value) {
+            return "-";
+        }
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return value;
+        }
+
+        return date.toLocaleString();
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    startBtn.addEventListener("click", () => {
+        createOrderFromInput().catch(error => {
+            log(error.message);
+            setBusy(false);
+        });
+    });
+    burstBtn.addEventListener("click", createBurst);
+    newIdBtn.addEventListener("click", setNewWorkOrderId);
+    refreshBtn.addEventListener("click", () => {
+        refreshOrders().catch(error => log(error.message));
+    });
+    truckDepartBtn.addEventListener("click", departTruck);
+
+    setNewWorkOrderId();
+    refreshAll().catch(error => log(error.message));
+    startAllOrdersRefresh();
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+server:
+  port: 8081
+
+flower:
+  enabled: true
+  auto-start: true
+  workers:
+    - name: rack-robot-zone
+      interval-ms: 100
+    - name: inspection-zone
+      interval-ms: 100
+    - name: packing-zone
+      interval-ms: 100
+    - name: sortation-zone
+      interval-ms: 100
+    - name: loading-zone
+      interval-ms: 100
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
