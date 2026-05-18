@@ -42,7 +42,7 @@ public final class EnemyActionStep extends Step {
             Battle battle = store.applyMonsterAttack(battleId);
             StepLogger.of(EnemyActionStep.class, ctx).info(
                     "monster attacked (hero hp " + battle.getHeroHp() + "/" + battle.getHeroMaxHp() + ")");
-            return StepResult.advance();
+            return StepResult.done();
         }
 
         return StepResult.fail(new IllegalStateException("unknown monster stepNo: " + ctx.stepNo()));

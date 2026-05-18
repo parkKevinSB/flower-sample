@@ -21,6 +21,6 @@ public final class StartTurnStep extends Step {
         StepLogger.of(StartTurnStep.class, ctx).info("turn " + battle.getTurn() + " started"
                 + " (hero " + battle.getHeroHp() + "/" + battle.getHeroMaxHp()
                 + ", monster " + battle.getMonsterHp() + "/" + battle.getMonsterMaxHp() + ")");
-        return StepResult.advance();
+        return StepResult.done();
     }
 }

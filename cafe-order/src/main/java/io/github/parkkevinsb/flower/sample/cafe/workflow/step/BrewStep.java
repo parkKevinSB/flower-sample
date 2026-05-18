@@ -14,7 +14,7 @@ import io.github.parkkevinsb.flower.sample.cafe.event.CoffeeReadyEvent;
  *
  * <p>This Step does not brew coffee itself. It owns the orchestration around
  * that work: publish the request, wait for the matching reply event, and decide
- * whether to advance or fail on timeout.
+ * whether to complete the Step or fail on timeout.
  */
 public final class BrewStep extends Step {
 
@@ -111,6 +111,6 @@ public final class BrewStep extends Step {
     }
 
     private StepResult showReady(StepContext ctx) {
-        return ctx.timedOut() ? StepResult.advance() : StepResult.stay();
+        return ctx.timedOut() ? StepResult.done() : StepResult.stay();
     }
 }

@@ -63,13 +63,13 @@ public final class WaitPlayerActionStep extends Step {
         if (ctx.stepNo() == WAITING) {
             if (ctx.hasSignal(SIGNAL_PLAYER_ATTACK)) {
                 StepLogger.of(WaitPlayerActionStep.class, ctx).info("player attack signal received");
-                return StepResult.advance();
+                return StepResult.done();
             }
             if (ctx.hasSignal(SIGNAL_PLAYER_FLEE)) {
                 Battle battle = store.attemptFlee(battleId);
                 if (battle.isFinished()) {
                     StepLogger.of(WaitPlayerActionStep.class, ctx).info("player escaped");
-                    return StepResult.done();
+                    return StepResult.finish();
                 }
                 StepLogger.of(WaitPlayerActionStep.class, ctx).info("player failed to escape");
                 return StepResult.goTo(TurnBattleFlowFactory.MONSTER_ACTION);

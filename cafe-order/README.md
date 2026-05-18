@@ -63,7 +63,7 @@ onTick stepNo 10: read signal/timeout and return StepResult
 
 ```text
 onTick stepNo 0: do the first small action, set stepNo 10, stay
-onTick stepNo 10: do the second small action, advance
+onTick stepNo 10: do the second small action, return done()
 ```
 
 That sample intentionally leaves `0` and `10` inline instead of hiding them

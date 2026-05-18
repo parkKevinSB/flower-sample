@@ -26,15 +26,15 @@ public final class CheckBattleEndStep extends Step {
         if (battle.getMonsterHp() <= 0) {
             store.finishVictory(battleId);
             StepLogger.of(CheckBattleEndStep.class, ctx).info("hero wins");
-            return StepResult.done();
+            return StepResult.finish();
         }
         if (battle.getHeroHp() <= 0) {
             store.finishDefeat(battleId);
             StepLogger.of(CheckBattleEndStep.class, ctx).info("monster wins");
-            return StepResult.done();
+            return StepResult.finish();
         }
 
         StepLogger.of(CheckBattleEndStep.class, ctx).info("battle continues");
-        return StepResult.advance();
+        return StepResult.done();
     }
 }

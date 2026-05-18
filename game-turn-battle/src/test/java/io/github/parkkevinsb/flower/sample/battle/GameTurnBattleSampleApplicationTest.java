@@ -212,7 +212,7 @@ class GameTurnBattleSampleApplicationTest {
             Thread.sleep(50L);
         }
         Battle battle = store.find(battleId);
-        throw new AssertionError("battle " + battleId + " did not finish or advance turn"
+        throw new AssertionError("battle " + battleId + " did not finish or complete turn"
                 + ", last was " + (battle == null ? "null" : battle.getStatus()));
     }
 }

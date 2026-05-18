@@ -53,11 +53,11 @@ public final class ResolveActionStep extends Step {
         if (ctx.stepNo() == ANIMATING) {
             if (ctx.hasSignal(SIGNAL_ANIMATION_DONE)) {
                 StepLogger.of(ResolveActionStep.class, ctx).info("sword animation finished");
-                return StepResult.advance();
+                return StepResult.done();
             }
             if (ctx.timedOut()) {
-                StepLogger.of(ResolveActionStep.class, ctx).info("animation timeout, advancing anyway");
-                return StepResult.advance();
+                StepLogger.of(ResolveActionStep.class, ctx).info("animation timeout, completing step anyway");
+                return StepResult.done();
             }
             return StepResult.stay();
         }

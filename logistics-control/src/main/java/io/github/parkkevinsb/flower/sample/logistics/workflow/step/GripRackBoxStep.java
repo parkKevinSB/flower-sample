@@ -58,7 +58,7 @@ public final class GripRackBoxStep extends Step {
                 return StepResult.stay();
 
             case GRIPPING:
-                return ctx.timedOut() ? StepResult.advance() : StepResult.stay();
+                return ctx.timedOut() ? StepResult.done() : StepResult.stay();
 
             default:
                 return StepResult.fail(new IllegalStateException("unknown rack grip stepNo: " + ctx.stepNo()));

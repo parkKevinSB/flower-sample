@@ -22,7 +22,7 @@ public final class AwaitZoneBoxStep extends Step {
     @Override
     protected StepResult onTick(StepContext ctx) {
         if (cycle.workOrderId() != null) {
-            return StepResult.advance();
+            return StepResult.done();
         }
 
         String workOrderId = conveyor.admit(zone, zone.processingStatus());
@@ -33,6 +33,6 @@ public final class AwaitZoneBoxStep extends Step {
         cycle.admit(workOrderId);
         StepLogger.of(AwaitZoneBoxStep.class, ctx).info(
                 zone.displayName() + " admitted " + workOrderId);
-        return StepResult.advance();
+        return StepResult.done();
     }
 }

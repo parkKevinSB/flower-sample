@@ -8,10 +8,10 @@ import io.github.parkkevinsb.flower.sample.cafe.domain.CafeOrderStore;
 
 /**
  * Records the order in the store, leaves it visible as ACCEPTED for a short
- * sample delay, then advances to the next Step.
+ * sample delay, then completes the Step.
  *
  * <p>Demonstrates the simplest Step shape: do a single store mutation, log,
- * and return ADVANCE.
+ * and return DONE when the Step's work is complete.
  */
 public final class AcceptOrderStep extends Step {
 
@@ -38,7 +38,7 @@ public final class AcceptOrderStep extends Step {
         }
 
         if (ctx.stepNo() == SHOW_ACCEPTED) {
-            return ctx.timedOut() ? StepResult.advance() : StepResult.stay();
+            return ctx.timedOut() ? StepResult.done() : StepResult.stay();
         }
 
         return StepResult.fail(new IllegalStateException("unknown accept-order stepNo: " + ctx.stepNo()));

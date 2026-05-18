@@ -66,7 +66,7 @@ public abstract class TimedZoneWorkStep extends Step {
                 return StepResult.stay();
 
             case WORKING:
-                return ctx.timedOut() ? StepResult.advance() : StepResult.stay();
+                return ctx.timedOut() ? StepResult.done() : StepResult.stay();
 
             default:
                 return StepResult.fail(new IllegalStateException("unknown timed Zone stepNo: " + ctx.stepNo()));

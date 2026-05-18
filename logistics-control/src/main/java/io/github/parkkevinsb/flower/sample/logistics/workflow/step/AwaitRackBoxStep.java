@@ -21,7 +21,7 @@ public final class AwaitRackBoxStep extends Step {
     @Override
     protected StepResult onTick(StepContext ctx) {
         if (cycle.workOrderId() != null) {
-            return StepResult.advance();
+            return StepResult.done();
         }
 
         String workOrderId = conveyor.admit(WarehouseZone.RACK_ROBOT, WorkOrderStatus.ROBOT_GRIPPING);
@@ -32,6 +32,6 @@ public final class AwaitRackBoxStep extends Step {
         cycle.admit(workOrderId);
         StepLogger.of(AwaitRackBoxStep.class, ctx).info(
                 "Rack robot selected first waiting Goods rack box " + workOrderId);
-        return StepResult.advance();
+        return StepResult.done();
     }
 }

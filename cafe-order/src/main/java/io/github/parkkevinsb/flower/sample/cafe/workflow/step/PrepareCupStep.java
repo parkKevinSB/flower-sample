@@ -50,7 +50,7 @@ public final class PrepareCupStep extends Step {
         }
 
         if (ctx.stepNo() == SHOW_CUP_PREPARED) {
-            return ctx.timedOut() ? StepResult.advance() : StepResult.stay();
+            return ctx.timedOut() ? StepResult.done() : StepResult.stay();
         }
 
         return StepResult.fail(new IllegalStateException("unknown prepare-cup stepNo: " + ctx.stepNo()));

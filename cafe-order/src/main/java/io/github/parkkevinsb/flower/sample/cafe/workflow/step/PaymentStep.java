@@ -72,7 +72,7 @@ public final class PaymentStep extends Step {
         }
 
         if (ctx.stepNo() == SHOW_PAYMENT_APPROVED) {
-            return ctx.timedOut() ? StepResult.advance() : StepResult.stay();
+            return ctx.timedOut() ? StepResult.done() : StepResult.stay();
         }
 
         return StepResult.fail(new IllegalStateException("unknown payment stepNo: " + ctx.stepNo()));
