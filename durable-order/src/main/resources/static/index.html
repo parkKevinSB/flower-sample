@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flower Durable Order Sample</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f4f6f8;
+            --surface: #ffffff;
+            --surface-soft: #f9fafb;
+            --text: #182230;
+            --muted: #667085;
+            --line: #d0d5dd;
+            --blue: #2563eb;
+            --green: #0f766e;
+            --amber: #b7791f;
+            --red: #b42318;
+            --shadow: 0 12px 28px rgba(16, 24, 40, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.45;
+        }
+
+        main {
+            width: min(1260px, calc(100% - 28px));
+            margin: 0 auto;
+            padding: 24px 0 32px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 0;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 16px;
+            letter-spacing: 0;
+        }
+
+        .subtitle {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .server {
+            min-width: 205px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .server strong,
+        label {
+            display: block;
+            color: var(--text);
+            font-weight: 800;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 360px minmax(0, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-height: 50px;
+            border-bottom: 1px solid var(--line);
+            padding: 13px 16px;
+        }
+
+        .panel-body {
+            padding: 16px;
+        }
+
+        label {
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #b8c4d2;
+            border-radius: 6px;
+            padding: 0 11px;
+            color: var(--text);
+            font-size: 14px;
+            letter-spacing: 0;
+            background: #ffffff;
+        }
+
+        button {
+            min-height: 40px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 0 12px;
+            color: #ffffff;
+            background: var(--blue);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            color: var(--text);
+            background: #eef2f7;
+            border-color: #cbd5e1;
+        }
+
+        button.danger {
+            background: var(--red);
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: 0.7;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+            margin-top: 12px;
+        }
+
+        .stack {
+            display: grid;
+            gap: 16px;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .metric {
+            min-height: 76px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--surface-soft);
+            padding: 10px;
+        }
+
+        .metric span {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .metric strong {
+            display: block;
+            overflow-wrap: anywhere;
+            font-size: 15px;
+        }
+
+        .flow-path {
+            display: grid;
+            gap: 8px;
+        }
+
+        .step-line {
+            display: grid;
+            grid-template-columns: 30px minmax(0, 1fr);
+            gap: 8px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            justify-self: center;
+        }
+
+        .step-line.active .dot {
+            background: var(--blue);
+            box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.14);
+        }
+
+        .step-line.done .dot {
+            background: var(--green);
+        }
+
+        .step-card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            padding: 9px 10px;
+        }
+
+        .step-card strong,
+        .step-card span {
+            display: block;
+            overflow-wrap: anywhere;
+        }
+
+        .step-card span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 24px;
+            border-radius: 999px;
+            padding: 2px 9px;
+            color: var(--text);
+            background: #eef2f7;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .badge.good {
+            background: #d9f4ed;
+        }
+
+        .badge.wait {
+            background: #fff0c2;
+        }
+
+        .badge.bad {
+            color: #ffffff;
+            background: var(--red);
+        }
+
+        .table-wrap {
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid var(--line);
+            padding: 9px 8px;
+            text-align: left;
+            vertical-align: top;
+            white-space: nowrap;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        td.wrap {
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .empty {
+            color: var(--muted);
+            padding: 16px 8px;
+        }
+
+        .log {
+            height: 180px;
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #101828;
+            color: #e4e7ec;
+            padding: 11px;
+            font-family: Consolas, Monaco, monospace;
+            font-size: 12px;
+        }
+
+        .log div {
+            padding-bottom: 5px;
+            overflow-wrap: anywhere;
+        }
+
+        @media (max-width: 980px) {
+            header,
+            .workspace {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 620px) {
+            main {
+                width: min(100% - 20px, 1260px);
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+
+            .actions,
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <header>
+        <div>
+            <h1>Flower Durable Order Sample</h1>
+            <p class="subtitle">Durable order flow and transient audit flow running in the same worker.</p>
+        </div>
+        <div class="server">
+            <strong>Local server</strong>
+            <span>http://localhost:8083</span>
+        </div>
+    </header>
+
+    <section class="workspace">
+        <aside class="panel">
+            <div class="panel-header">
+                <h2>Controls</h2>
+            </div>
+            <div class="panel-body">
+                <label for="orderId">Order id</label>
+                <input id="orderId" autocomplete="off">
+                <div class="actions">
+                    <button id="startOrder" type="button">Start Order</button>
+                    <button id="markPaid" class="secondary" type="button">Mark Paid</button>
+                    <button id="startAudit" class="secondary" type="button">Start Audit</button>
+                    <button id="refresh" class="secondary" type="button">Refresh</button>
+                    <button id="reset" class="danger" type="button">Reset</button>
+                </div>
+            </div>
+        </aside>
+
+        <section class="stack">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Runtime</h2>
+                    <span id="runtimeBadge" class="badge">loading</span>
+                </div>
+                <div class="panel-body stack">
+                    <div class="metrics">
+                        <div class="metric">
+                            <span>Engine</span>
+                            <strong id="engineState">-</strong>
+                        </div>
+                        <div class="metric">
+                            <span>Active Flows</span>
+                            <strong id="activeFlowCount">-</strong>
+                        </div>
+                        <div class="metric">
+                            <span>Checkpoints</span>
+                            <strong id="checkpointCount">-</strong>
+                        </div>
+                    </div>
+
+                    <div class="flow-path" id="flowPath"></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Orders</h2>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Status</th>
+                            <th>Paid</th>
+                            <th>Inventory</th>
+                            <th>Shipped</th>
+                            <th>Updated</th>
+                        </tr>
+                        </thead>
+                        <tbody id="ordersBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Active Checkpoints</h2>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Flow</th>
+                            <th>Step</th>
+                            <th>StepNo</th>
+                            <th>Entered</th>
+                            <th>Worker</th>
+                        </tr>
+                        </thead>
+                        <tbody id="checkpointsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Transient Audit Log</h2>
+                </div>
+                <div class="panel-body">
+                    <div id="auditLog" class="log"></div>
+                </div>
+            </div>
+        </section>
+    </section>
+</main>
+
+<script>
+    const orderIdInput = document.getElementById("orderId");
+    const startOrderBtn = document.getElementById("startOrder");
+    const markPaidBtn = document.getElementById("markPaid");
+    const startAuditBtn = document.getElementById("startAudit");
+    const refreshBtn = document.getElementById("refresh");
+    const resetBtn = document.getElementById("reset");
+    const runtimeBadge = document.getElementById("runtimeBadge");
+    const engineStateEl = document.getElementById("engineState");
+    const activeFlowCountEl = document.getElementById("activeFlowCount");
+    const checkpointCountEl = document.getElementById("checkpointCount");
+    const flowPathEl = document.getElementById("flowPath");
+    const ordersBody = document.getElementById("ordersBody");
+    const checkpointsBody = document.getElementById("checkpointsBody");
+    const auditLog = document.getElementById("auditLog");
+
+    const orderSteps = [
+        ["validate-order", "Validate"],
+        ["wait-payment", "Wait Payment"],
+        ["reserve-inventory", "Reserve Inventory"],
+        ["ship-order", "Ship"],
+        ["complete-order", "Complete"]
+    ];
+
+    let currentOrderId = "";
+    let lastState = null;
+    let orderIdTouched = false;
+    let orderSequence = 1;
+
+    function nextId() {
+        const maxExisting = highestOrderNo(lastState);
+        orderSequence = Math.max(orderSequence, maxExisting + 1);
+        return formatOrderId(orderSequence);
+    }
+
+    function advanceOrderId(state) {
+        orderSequence = Math.max(orderSequence + 1, highestOrderNo(state) + 1);
+        orderIdInput.value = formatOrderId(orderSequence);
+        orderIdTouched = false;
+    }
+
+    function highestOrderNo(state) {
+        if (!state || !state.orders) {
+            return 0;
+        }
+        return state.orders.reduce((max, order) => Math.max(max, orderNo(order.orderId)), 0);
+    }
+
+    function orderNo(orderId) {
+        const match = /^ORD-(\d+)$/.exec(String(orderId || ""));
+        return match ? Number(match[1]) : 0;
+    }
+
+    function formatOrderId(no) {
+        return "ORD-" + String(no).padStart(6, "0");
+    }
+
+    function selectedOrderId() {
+        const id = orderIdInput.value.trim();
+        if (id) {
+            return id;
+        }
+        orderIdInput.value = nextId();
+        return orderIdInput.value;
+    }
+
+    function selectedPayOrderId() {
+        const id = orderIdInput.value.trim();
+        if (lastState) {
+            if (lastState.orders.some(order => order.orderId === id)) {
+                return id;
+            }
+            const active = lastState.activeFlows.find(flow => flow.flowType === "order");
+            if (active) {
+                return active.flowKey;
+            }
+            const checkpoint = lastState.checkpoints.find(item => item.flowType === "order");
+            if (checkpoint) {
+                return checkpoint.flowKey;
+            }
+            const waiting = lastState.orders.find(order =>
+                order.status === "WAITING_PAYMENT" || order.status === "VALIDATED"
+            );
+            if (waiting) {
+                return waiting.orderId;
+            }
+        }
+        return id;
+    }
+
+    async function request(path, options = {}) {
+        const response = await fetch(path, options);
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`${response.status} ${response.statusText} ${text}`.trim());
+        }
+        return response.json();
+    }
+
+    async function mutate(path, body) {
+        const options = { method: "POST" };
+        if (body) {
+            options.headers = { "Content-Type": "application/json" };
+            options.body = JSON.stringify(body);
+        }
+        const state = await request(path, options);
+        render(state);
+    }
+
+    async function refresh() {
+        render(await request("/api/state"));
+    }
+
+    function render(state) {
+        lastState = state;
+        syncSelectedOrder(state);
+        runtimeBadge.textContent = state.runtimeRunning ? "RUNNING" : "STOPPED";
+        runtimeBadge.className = "badge " + (state.runtimeRunning ? "good" : "bad");
+        engineStateEl.textContent = state.engineState || "-";
+        activeFlowCountEl.textContent = state.activeFlows.length;
+        checkpointCountEl.textContent = state.checkpoints.length;
+
+        renderFlowPath(state);
+        renderOrders(state.orders);
+        renderCheckpoints(state.checkpoints);
+        renderAudit(state.auditEvents);
+    }
+
+    function syncSelectedOrder(state) {
+        const id = orderIdInput.value.trim();
+        if (id && state.orders.some(order => order.orderId === id)) {
+            currentOrderId = id;
+            return;
+        }
+        if (orderIdTouched && id) {
+            return;
+        }
+        const active = state.activeFlows.find(flow => flow.flowType === "order");
+        const checkpoint = state.checkpoints.find(item => item.flowType === "order");
+        const waiting = state.orders.find(order =>
+            order.status === "WAITING_PAYMENT" || order.status === "VALIDATED"
+        );
+        const candidate = active && active.flowKey
+            ? active.flowKey
+            : checkpoint && checkpoint.flowKey
+                ? checkpoint.flowKey
+                : waiting && waiting.orderId
+                    ? waiting.orderId
+                    : "";
+        if (candidate) {
+            currentOrderId = candidate;
+            if (!orderIdTouched && shouldRefreshGeneratedId(id, state)) {
+                orderIdInput.value = nextId();
+                orderIdTouched = false;
+            }
+            return;
+        }
+        if (!orderIdTouched && shouldRefreshGeneratedId(id, state)) {
+            orderIdInput.value = nextId();
+            orderIdTouched = false;
+        }
+    }
+
+    function shouldRefreshGeneratedId(id, state) {
+        if (!id) {
+            return true;
+        }
+        const no = orderNo(id);
+        return no > 0 && no <= highestOrderNo(state);
+    }
+
+    function renderFlowPath(state) {
+        const active = state.activeFlows.find(flow => flow.flowType === "order")
+            || state.checkpoints.find(checkpoint => checkpoint.flowType === "order");
+        const activeStep = active ? active.currentStepId : null;
+        const completed = latestSelectedOrderStatus(state) === "COMPLETED";
+        flowPathEl.innerHTML = orderSteps.map(([id, label]) => {
+            const activeIndex = orderSteps.findIndex(([stepId]) => stepId === activeStep);
+            const index = orderSteps.findIndex(([stepId]) => stepId === id);
+            let cls = "step-line";
+            if (completed || (activeStep && index < activeIndex)) {
+                cls += " done";
+            }
+            if (id === activeStep && !completed) {
+                cls += " active";
+            }
+            return `
+                <div class="${cls}">
+                    <div class="dot"></div>
+                    <div class="step-card">
+                        <strong>${escapeHtml(label)}</strong>
+                        <span>${escapeHtml(id)}</span>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function latestSelectedOrderStatus(state) {
+        const id = currentOrderId || orderIdInput.value.trim();
+        const order = state.orders.find(item => item.orderId === id);
+        return order ? order.status : "";
+    }
+
+    function renderOrders(orders) {
+        if (!orders.length) {
+            ordersBody.innerHTML = `<tr><td class="empty" colspan="6">No orders.</td></tr>`;
+            return;
+        }
+        ordersBody.innerHTML = orders.map(order => `
+            <tr>
+                <td class="wrap"><strong>${escapeHtml(order.orderId)}</strong></td>
+                <td>${badge(order.status)}</td>
+                <td>${yesNo(order.paymentReceived)}</td>
+                <td>${yesNo(order.inventoryReserved)}</td>
+                <td>${yesNo(order.shipped)}</td>
+                <td>${formatTime(order.updatedAt)}</td>
+            </tr>
+        `).join("");
+    }
+
+    function renderCheckpoints(checkpoints) {
+        if (!checkpoints.length) {
+            checkpointsBody.innerHTML = `<tr><td class="empty" colspan="5">No active checkpoints.</td></tr>`;
+            return;
+        }
+        checkpointsBody.innerHTML = checkpoints.map(checkpoint => `
+            <tr>
+                <td class="wrap">${escapeHtml(checkpoint.flowType)}/${escapeHtml(checkpoint.flowKey)}</td>
+                <td>${escapeHtml(checkpoint.currentStepId || "-")}</td>
+                <td>${checkpoint.currentStepNo}</td>
+                <td>${yesNo(checkpoint.currentStepEntered)}</td>
+                <td>${escapeHtml(checkpoint.workerName || "-")}</td>
+            </tr>
+        `).join("");
+    }
+
+    function renderAudit(events) {
+        if (!events.length) {
+            auditLog.innerHTML = `<div>No audit events.</div>`;
+            return;
+        }
+        auditLog.innerHTML = events.map(event =>
+            `<div>[${formatTime(event.createdAt)}] ${escapeHtml(event.auditType)} - ${escapeHtml(event.message)}</div>`
+        ).join("");
+    }
+
+    function badge(status) {
+        let cls = "badge";
+        if (status === "COMPLETED") {
+            cls += " good";
+        } else if (status === "WAITING_PAYMENT" || status === "PAID") {
+            cls += " wait";
+        }
+        return `<span class="${cls}">${escapeHtml(status)}</span>`;
+    }
+
+    function yesNo(value) {
+        return value ? "yes" : "no";
+    }
+
+    function formatTime(value) {
+        if (!value) {
+            return "-";
+        }
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? value : date.toLocaleTimeString();
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    async function run(action) {
+        setBusy(true);
+        try {
+            await action();
+        } catch (error) {
+            console.error(error);
+            alert(error.message);
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    function setBusy(busy) {
+        [startOrderBtn, markPaidBtn, startAuditBtn, refreshBtn, resetBtn]
+            .forEach(button => button.disabled = busy);
+    }
+
+    orderIdInput.addEventListener("input", () => {
+        currentOrderId = orderIdInput.value.trim();
+        orderIdTouched = true;
+    });
+
+    startOrderBtn.addEventListener("click", () => run(async () => {
+        const startedOrderId = selectedOrderId();
+        currentOrderId = startedOrderId;
+        orderIdTouched = false;
+        await mutate("/api/orders", { orderId: startedOrderId });
+        advanceOrderId(lastState);
+    }));
+
+    markPaidBtn.addEventListener("click", () => run(async () => {
+        currentOrderId = selectedPayOrderId();
+        if (!currentOrderId) {
+            throw new Error("Start an order first.");
+        }
+        orderIdInput.value = currentOrderId;
+        orderIdTouched = false;
+        await mutate(`/api/orders/${encodeURIComponent(currentOrderId)}/pay`);
+    }));
+
+    startAuditBtn.addEventListener("click", () => run(async () => {
+        await mutate("/api/audits", { message: "operator opened durable order board" });
+    }));
+
+    resetBtn.addEventListener("click", () => run(async () => {
+        currentOrderId = "";
+        orderIdInput.value = nextId();
+        orderIdTouched = false;
+        await mutate("/api/reset");
+    }));
+
+    refreshBtn.addEventListener("click", () => run(refresh));
+
+    orderIdInput.value = nextId();
+    refresh();
+    setInterval(refresh, 1000);
+</script>
+</body>
+</html>

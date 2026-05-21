@@ -17,6 +17,7 @@ flower-sample/
   cafe-order/               Flower entry-point sample (implemented)
   logistics-control/        automated warehouse Zone sample (implemented)
   game-turn-battle/         turn-based battle sample (implemented)
+  durable-order/            durable checkpoint/recovery sample (implemented)
 ```
 
 ## Samples
@@ -26,6 +27,7 @@ flower-sample/
 | `cafe-order`        | implemented | Spring Boot wiring, Worker submit, Step composition, Bloom request/reply |
 | `logistics-control` | implemented | self-driving warehouse Zones, shared robot capacity, queue back pressure |
 | `game-turn-battle`  | implemented | goTo turn loop, signal-only Bloom callbacks, persistent game state + web UI |
+| `durable-order`     | implemented | durable checkpoint/recovery beside a transient flow, H2 state, web UI |
 
 See `SAMPLE_PROJECT_PLAN.md` for the design notes behind this layout and what
 each future sample is meant to demonstrate.
@@ -48,6 +50,7 @@ From the `flower-sample` root:
 ./gradlew :cafe-order:bootRun           # port 8080
 ./gradlew :logistics-control:bootRun    # port 8081
 ./gradlew :game-turn-battle:bootRun     # port 8082
+./gradlew :durable-order:bootRun        # port 8083
 ```
 
 Each sample exposes its own `static/index.html` and curl examples in its own
