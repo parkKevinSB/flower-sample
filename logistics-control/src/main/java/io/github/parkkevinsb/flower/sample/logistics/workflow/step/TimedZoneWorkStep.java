@@ -63,13 +63,18 @@ public abstract class TimedZoneWorkStep extends Step {
                         zone.displayName() + " " + action + " for " + cycle.workOrderId());
                 ctx.startTimeout(zone.processingMillis());
                 ctx.setStepNo(Phase.WORKING.stepNo());
-                return StepResult.stay();
+                break;
 
             case WORKING:
-                return ctx.timedOut() ? StepResult.done() : StepResult.stay();
+                if (ctx.timedOut()) {
+                    return StepResult.done();
+                }
+                break;
 
             default:
                 return StepResult.fail(new IllegalStateException("unknown timed Zone stepNo: " + ctx.stepNo()));
         }
+
+        return StepResult.stay();
     }
 }

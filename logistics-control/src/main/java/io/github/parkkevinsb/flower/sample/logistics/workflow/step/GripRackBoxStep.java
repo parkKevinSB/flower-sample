@@ -55,13 +55,18 @@ public final class GripRackBoxStep extends Step {
                         "Rack robot gripping Goods rack box " + cycle.workOrderId());
                 ctx.startTimeout(GRIP_MILLIS);
                 ctx.setStepNo(Phase.GRIPPING.stepNo());
-                return StepResult.stay();
+                break;
 
             case GRIPPING:
-                return ctx.timedOut() ? StepResult.done() : StepResult.stay();
+                if (ctx.timedOut()) {
+                    return StepResult.done();
+                }
+                break;
 
             default:
                 return StepResult.fail(new IllegalStateException("unknown rack grip stepNo: " + ctx.stepNo()));
         }
+
+        return StepResult.stay();
     }
 }

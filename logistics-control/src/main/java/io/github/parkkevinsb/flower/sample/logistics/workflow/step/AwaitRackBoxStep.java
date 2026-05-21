@@ -25,13 +25,13 @@ public final class AwaitRackBoxStep extends Step {
         }
 
         String workOrderId = conveyor.admit(WarehouseZone.RACK_ROBOT, WorkOrderStatus.ROBOT_GRIPPING);
-        if (workOrderId == null) {
-            return StepResult.stay();
+        if (workOrderId != null) {
+            cycle.admit(workOrderId);
+            StepLogger.of(AwaitRackBoxStep.class, ctx).info(
+                    "Rack robot selected first waiting Goods rack box " + workOrderId);
+            return StepResult.done();
         }
 
-        cycle.admit(workOrderId);
-        StepLogger.of(AwaitRackBoxStep.class, ctx).info(
-                "Rack robot selected first waiting Goods rack box " + workOrderId);
-        return StepResult.done();
+        return StepResult.stay();
     }
 }

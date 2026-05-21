@@ -26,13 +26,13 @@ public final class AwaitZoneBoxStep extends Step {
         }
 
         String workOrderId = conveyor.admit(zone, zone.processingStatus());
-        if (workOrderId == null) {
-            return StepResult.stay();
+        if (workOrderId != null) {
+            cycle.admit(workOrderId);
+            StepLogger.of(AwaitZoneBoxStep.class, ctx).info(
+                    zone.displayName() + " admitted " + workOrderId);
+            return StepResult.done();
         }
 
-        cycle.admit(workOrderId);
-        StepLogger.of(AwaitZoneBoxStep.class, ctx).info(
-                zone.displayName() + " admitted " + workOrderId);
-        return StepResult.done();
+        return StepResult.stay();
     }
 }

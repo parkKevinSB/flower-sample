@@ -62,11 +62,11 @@ public final class PlaceRackBoxOnConveyorStep extends Step {
                         "Rack robot placing " + workOrderId + " on the conveyor");
                 ctx.startTimeout(PLACE_MILLIS);
                 ctx.setStepNo(Phase.PLACING.stepNo());
-                return StepResult.stay();
+                break;
 
             case PLACING:
                 if (!ctx.timedOut()) {
-                    return StepResult.stay();
+                    break;
                 }
                 conveyor.release(WarehouseZone.RACK_ROBOT, workOrderId);
                 cycle.clear();
@@ -77,5 +77,7 @@ public final class PlaceRackBoxOnConveyorStep extends Step {
             default:
                 return StepResult.fail(new IllegalStateException("unknown rack place stepNo: " + ctx.stepNo()));
         }
+
+        return StepResult.stay();
     }
 }
