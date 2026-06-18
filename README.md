@@ -1,12 +1,17 @@
-# flower-sample
+# Flower JVM Samples
 
-Sample collection for **Flower** (orchestration) + **Bloom** (events).
+Sample applications for **Flower JVM**.
+
+This repository exists to show how the Flower workflow runtime and Bloom event
+bus are used in small, runnable Java/Spring Boot applications. The samples are
+not a benchmark suite or a production template generator. They are working
+examples meant to make the runtime concepts concrete.
 
 Each sample lives in its own Gradle subproject. Most samples are Spring Boot
-3.3 / Java 21 apps; `flower-basic-samples` is a plain Java module that keeps
-the focus on Flower runtime primitives. The root only manages shared versions,
-repositories, the Java toolchain, and the test runner. There is one Gradle
-wrapper at the root shared across all samples.
+apps; `flower-basic-samples` is a plain Java module that keeps the focus on
+Flower runtime primitives. The root only manages shared versions, repositories,
+the Java toolchain, and the test runner. There is one Gradle wrapper at the
+root shared across all samples.
 
 ```text
 flower-sample/
@@ -22,6 +27,13 @@ flower-sample/
   flower-basic-samples/     small Flower runtime samples (implemented)
 ```
 
+## Repositories
+
+- Flower runtime: <https://github.com/flowerjvm/flower>
+- Bloom event bus: <https://github.com/flowerjvm/bloom>
+- AI Harness: <https://github.com/flowerjvm/flower-ai-harness>
+- Samples: <https://github.com/flowerjvm/flower-sample>
+
 ## Samples
 
 | Module              | Status      | What it shows                                                           |
@@ -32,13 +44,12 @@ flower-sample/
 | `durable-order`     | implemented | durable checkpoint/recovery beside a transient flow, H2 state, web UI |
 | `flower-basic-samples` | implemented | plain Java Engine/Worker/Flow/Step samples with console traces |
 
-See `SAMPLE_PROJECT_PLAN.md` for the design notes behind this layout and what
-each future sample is meant to demonstrate.
+See `SAMPLE_PROJECT_PLAN.md` for the design notes behind this layout.
 
 ## Prerequisites
 
-The samples depend on local snapshot builds of Flower and Bloom. Install them
-into your local Maven repository before building:
+Flower and Bloom are not published to Maven Central yet. Install local
+snapshots before building the samples:
 
 ```bash
 cd ../bloom && mvn install
@@ -90,5 +101,9 @@ Or run every sample's tests:
    that applies `org.springframework.boot` and `io.spring.dependency-management`.
 2. Add `include("my-sample")` to `settings.gradle.kts`.
 3. Add a `README.md` and a `static/index.html` in the new module.
-4. Each sample is a standalone app — do not share domain code across samples.
+4. Each sample is a standalone app - do not share domain code across samples.
    Slight repetition is intentional; the goal is learnability, not reuse.
+
+## License
+
+Apache License 2.0.
