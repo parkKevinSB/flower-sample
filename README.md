@@ -2,10 +2,11 @@
 
 Sample collection for **Flower** (orchestration) + **Bloom** (events).
 
-Each sample is its own Spring Boot 3.3 / Java 21 app and lives in its own
-Gradle subproject. The root only manages shared versions, repositories, the
-Java toolchain, and the test runner. There is one Gradle wrapper at the root
-shared across all samples.
+Each sample lives in its own Gradle subproject. Most samples are Spring Boot
+3.3 / Java 21 apps; `flower-basic-samples` is a plain Java module that keeps
+the focus on Flower runtime primitives. The root only manages shared versions,
+repositories, the Java toolchain, and the test runner. There is one Gradle
+wrapper at the root shared across all samples.
 
 ```text
 flower-sample/
@@ -18,6 +19,7 @@ flower-sample/
   logistics-control/        automated warehouse Zone sample (implemented)
   game-turn-battle/         turn-based battle sample (implemented)
   durable-order/            durable checkpoint/recovery sample (implemented)
+  flower-basic-samples/     small Flower runtime samples (implemented)
 ```
 
 ## Samples
@@ -28,6 +30,7 @@ flower-sample/
 | `logistics-control` | implemented | self-driving warehouse Zones, shared robot capacity, queue back pressure |
 | `game-turn-battle`  | implemented | goTo turn loop, signal-only Bloom callbacks, persistent game state + web UI |
 | `durable-order`     | implemented | durable checkpoint/recovery beside a transient flow, H2 state, web UI |
+| `flower-basic-samples` | implemented | plain Java Engine/Worker/Flow/Step samples with console traces |
 
 See `SAMPLE_PROJECT_PLAN.md` for the design notes behind this layout and what
 each future sample is meant to demonstrate.
@@ -53,8 +56,21 @@ From the `flower-sample` root:
 ./gradlew :durable-order:bootRun        # port 8083
 ```
 
-Each sample exposes its own `static/index.html` and curl examples in its own
-README.
+The Spring Boot app samples expose their own `static/index.html` and curl
+examples in their own README files.
+
+Run a basic console sample:
+
+```bash
+./gradlew :flower-basic-samples:runDoneFlowSample
+./gradlew :flower-basic-samples:runStayFlowSample
+./gradlew :flower-basic-samples:runGoToFlowSample
+./gradlew :flower-basic-samples:runEventFlowSample
+./gradlew :flower-basic-samples:runRepeatFlowSample
+./gradlew :flower-basic-samples:runFinishFlowSample
+./gradlew :flower-basic-samples:runFailFlowSample
+./gradlew :flower-basic-samples:runGuardFlowSample
+```
 
 ## Test a sample
 
